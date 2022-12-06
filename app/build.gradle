@@ -1,0 +1,60 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.ntduc.flappybird'
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.ntduc.flappybird"
+        minSdk 21
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    def utilsVersion = "1.2.9"
+    implementation "com.github.ntduc-let.Utils:ActivityUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:AnimationUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:AppUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ColorUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ContextUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:FileUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:MusicPlayerUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:NumberUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:RecyclerViewUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:StringUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ToastUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:VideoPlayerUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ViewPager2Utils:$utilsVersion"
+}
