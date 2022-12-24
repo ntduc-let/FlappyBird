@@ -348,7 +348,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mBirds: List<Bitmap> = listOf()     //List bitmap for bird
     private var birdFrame: Int = 0                  //Theo dõi trạng thái của bird
     private var velocity: Int = 0                   //Vận tốc rơi
-    private var gravity: Int = 3
+    private var gravity: Int = 2
 
     private var birdX: Float = 0f
     private var birdY: Float = 0f
