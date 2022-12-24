@@ -183,8 +183,11 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         if (birdY < mDisplayHeight - mBirds[0].height || velocity < 0) {     //Xét bird không rơi khỏi màn hình
             //Xét bird đang rơi, càng rơi càng nhanh
             velocity += gravity
-            birdY += velocity
+
+            birdY = if (birdY + velocity < 0) 0f else birdY + velocity
         } else {
+            startMediaHit()
+
             gameState = STATE_GAME_OVER
         }
         drawBird(canvas)
@@ -277,7 +280,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         createDataGame()
     }
 
-    private fun init(){
+    private fun init() {
         initData()
         initView()
         initEvent()
