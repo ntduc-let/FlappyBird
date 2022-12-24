@@ -28,9 +28,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         binding = ActivityPlayGameBinding.inflate(inflater)
         setContentView(binding.root)
 
-        initData()
-        initView()
-        initEvent()
+        init()
     }
 
     override fun onStart() {
@@ -277,6 +275,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun initData() {
         createDataGame()
+    }
+
+    private fun init(){
+        initData()
+        initView()
+        initEvent()
     }
 
     private fun setupSurfaceHolder() {
