@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -76,7 +75,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             while (true) {
                 val canvas: Canvas = withContext(Dispatchers.Main) {
                     surfaceHolder.lockCanvas()
-                }
+                } ?: continue
 
                 drawBackGroundGame(canvas)
 
@@ -108,7 +107,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 }
 
                 withContext(Dispatchers.Main) {
-                    surfaceHolder.unlockCanvasAndPost(canvas)
+                    if (surfaceHolder.surface.isValid) surfaceHolder.unlockCanvasAndPost(canvas)
                 }
             }
         }
