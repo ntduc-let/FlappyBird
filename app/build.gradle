@@ -57,4 +57,9 @@ dependencies {
     implementation "com.github.ntduc-let.Utils:ToastUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:VideoPlayerUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ViewPager2Utils:$utilsVersion"
+
+    // Coroutines kotlin
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 }

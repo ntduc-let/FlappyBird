@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity() {
     private fun initEvent() {
         binding.play.setOnClickListener {
             startActivity(Intent(this, PlayGameActivity::class.java))
-            finish()
         }
     }
 }
