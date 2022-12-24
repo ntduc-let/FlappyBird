@@ -81,11 +81,15 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
                         drawBird(canvas)
+                        hideScoreBoard()
+                        hideScore()
                     }
                     STATE_GAME_PLAYING -> {
+                        updateTube(canvas)
+
                         updateBird(canvas)
 
-                        updateTube(canvas)
+                        showScore()
 
                         if (isBirdHitTube()) {
                             startMediaHit()
@@ -99,11 +103,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                     }
                     STATE_GAME_OVER -> {
-                        drawBird(canvas)
-
                         drawTube(canvas)
 
-                        drawGameOver(canvas)
+                        drawBird(canvas)
+
+                        hideScore()
+                        showScoreBoard()
                     }
                 }
 
@@ -111,6 +116,31 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     if (surfaceHolder.surface.isValid) surfaceHolder.unlockCanvasAndPost(canvas)
                 }
             }
+        }
+    }
+
+    private suspend fun hideScore() {
+        withContext(Dispatchers.Main){
+            binding.score.visibility = View.GONE
+        }
+    }
+
+    private suspend fun showScore() {
+        withContext(Dispatchers.Main){
+            binding.score.visibility = View.VISIBLE
+        }
+    }
+
+    private suspend fun hideScoreBoard() {
+        withContext(Dispatchers.Main){
+            binding.scoreboard.root.visibility = View.GONE
+        }
+    }
+
+    private suspend fun showScoreBoard() {
+        withContext(Dispatchers.Main){
+            binding.scoreboard.score.text = "$score"
+            binding.scoreboard.root.visibility = View.VISIBLE
         }
     }
 
@@ -219,17 +249,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
-    private suspend fun drawGameOver(canvas: Canvas) {
-        withContext(Dispatchers.Main) {
-            canvas.drawBitmap(
-                mGameOver!!,
-                (mDisplayWidth - mGameOver!!.width).toFloat() / 2,
-                (mDisplayHeight - mGameOver!!.height).toFloat() * 1 / 4,
-                null
-            )
-        }
-    }
-
     private suspend fun drawBackGroundGame(canvas: Canvas) {
         withContext(Dispatchers.Main) {
             canvas.drawBitmap(mBackground!!, null, mRect!!, null)
@@ -268,6 +287,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun initEvent() {
         binding.surfaceView.setOnTouchListener(this)
+        binding.scoreboard.exit.setOnClickListener {
+            finish()
+        }
+        binding.scoreboard.playAgain.setOnClickListener {
+            resetData()
+        }
     }
 
     private fun initView() {
@@ -291,9 +316,25 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         surfaceHolder.addCallback(this)
     }
 
+    private fun resetData() {
+        gameState = STATE_GAME_NOT_STARTED
+
+        score = 0
+        scoringTube = 0
+
+        birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
+        birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
+
+        tubeX.clear()
+        topTubeY.clear()
+        for (i in 0 until numberOfTubes) {
+            tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
+            topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
+        }
+    }
+
     private fun createDataGame() {
         mBackground = BitmapFactory.decodeResource(resources, R.drawable.bg)
-        mGameOver = BitmapFactory.decodeResource(resources, R.drawable.gameover)
         mTopTube = BitmapFactory.decodeResource(resources, R.drawable.toptube)
         mBottomTube = BitmapFactory.decodeResource(resources, R.drawable.bottomtube)
         val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -310,16 +351,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             BitmapFactory.decodeResource(resources, R.drawable.bird2)
         )
 
-        birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
-        birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
-
         distanceBetweenTubes = mDisplayWidth * 3 / 4
         maxTubeOffset = mDisplayHeight - minTubeOffset - gap
 
-        for (i in 0 until numberOfTubes) {
-            tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
-            topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
-        }
+        resetData()
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -345,7 +380,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mediaWing: MediaPlayer? = null
 
     private var mBackground: Bitmap? = null
-    private var mGameOver: Bitmap? = null
     private var mTopTube: Bitmap? = null
     private var mBottomTube: Bitmap? = null
     private var mDisplayWidth: Int = 0              //Width screen
