@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -89,6 +90,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         updateTube(canvas)
 
                         if (isBirdHitTube()) {
+                            startMediaHit()
+
                             gameState = STATE_GAME_OVER
                         } else {
                             updateScore()
@@ -127,13 +130,18 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         val action = event?.action
 
         if (action == MotionEvent.ACTION_DOWN) {
+
             when (gameState) {
                 STATE_GAME_NOT_STARTED -> {
-                    velocity = -35
+                    startMediaWing()
+
+                    velocity = -30
                     gameState = STATE_GAME_PLAYING
                 }
                 STATE_GAME_PLAYING -> {
-                    velocity = -35
+                    startMediaWing()
+
+                    velocity = -30
                 }
                 STATE_GAME_PAUSED -> {
 
@@ -151,6 +159,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             score += 1
             scoringTube =
                 if (scoringTube!! < numberOfTubes - 1) scoringTube!! + 1 else 0
+
+            startMediaPoint()
 
             withContext(Dispatchers.Main) {
                 binding.score.text = "$score"
@@ -225,6 +235,36 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
+    private fun startMediaPoint() {
+        createMediaPoint()
+        mediaPoint?.start()
+    }
+
+    private fun createMediaPoint() {
+        mediaPoint?.reset()
+        mediaPoint = MediaPlayer.create(this, R.raw.point)
+    }
+
+    private fun startMediaHit() {
+        createMediaHit()
+        mediaHit?.start()
+    }
+
+    private fun createMediaHit() {
+        mediaHit?.reset()
+        mediaHit = MediaPlayer.create(this, R.raw.hit)
+    }
+
+    private fun startMediaWing() {
+        createMediaWing()
+        mediaWing?.start()
+    }
+
+    private fun createMediaWing() {
+        mediaWing?.reset()
+        mediaWing = MediaPlayer.create(this, R.raw.wing)
+    }
+
     private fun initEvent() {
         binding.surfaceView.setOnTouchListener(this)
     }
@@ -292,6 +332,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private lateinit var binding: ActivityPlayGameBinding
     private lateinit var surfaceHolder: SurfaceHolder
+
+    private var mediaHit: MediaPlayer? = null
+    private var mediaPoint: MediaPlayer? = null
+    private var mediaWing: MediaPlayer? = null
 
     private var mBackground: Bitmap? = null
     private var mGameOver: Bitmap? = null
