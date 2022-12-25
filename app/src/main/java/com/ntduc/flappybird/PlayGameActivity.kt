@@ -34,8 +34,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     override fun onResume() {
         super.onResume()
 
-        surfaceHolder.addCallback(this)
-
         when (gameState) {
             STATE_GAME_NOT_STARTED -> {
 
@@ -54,8 +52,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     override fun onPause() {
         super.onPause()
-
-        surfaceHolder.addCallback(null)
 
         when (gameState) {
             STATE_GAME_NOT_STARTED -> {
@@ -342,6 +338,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun setupSurfaceHolder() {
         surfaceHolder = binding.surfaceView.holder
+        surfaceHolder.addCallback(this)
     }
 
     private fun resetData() {
