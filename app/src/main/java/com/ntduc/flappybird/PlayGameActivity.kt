@@ -31,8 +31,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         init()
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
+
+        surfaceHolder.addCallback(this)
 
         when (gameState) {
             STATE_GAME_NOT_STARTED -> {
@@ -50,8 +52,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
+
+        surfaceHolder.addCallback(null)
 
         when (gameState) {
             STATE_GAME_NOT_STARTED -> {
@@ -83,6 +87,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         drawBird(canvas)
                         hideScoreBoard()
                         hideScore()
+                        hidePaused()
                     }
                     STATE_GAME_PLAYING -> {
                         updateTube(canvas)
@@ -90,6 +95,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         updateBird(canvas)
 
                         showScore()
+                        hidePaused()
 
                         if (isBirdHitTube()) {
                             startMediaHit()
@@ -100,7 +106,11 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         }
                     }
                     STATE_GAME_PAUSED -> {
+                        drawTube(canvas)
 
+                        drawBird(canvas)
+
+                        showPaused()
                     }
                     STATE_GAME_OVER -> {
                         drawTube(canvas)
@@ -109,6 +119,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                         hideScore()
                         showScoreBoard()
+                        hidePaused()
                     }
                 }
 
@@ -116,6 +127,18 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     if (surfaceHolder.surface.isValid) surfaceHolder.unlockCanvasAndPost(canvas)
                 }
             }
+        }
+    }
+
+    private suspend fun hidePaused() {
+        withContext(Dispatchers.Main){
+            binding.paused.root.visibility = View.GONE
+        }
+    }
+
+    private suspend fun showPaused() {
+        withContext(Dispatchers.Main){
+            binding.paused.root.visibility = View.VISIBLE
         }
     }
 
@@ -293,6 +316,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         binding.scoreboard.playAgain.setOnClickListener {
             resetData()
         }
+        binding.paused.resume.setOnClickListener {
+
+        }
+        binding.paused.exit.setOnClickListener {
+            finish()
+        }
     }
 
     private fun initView() {
@@ -313,7 +342,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun setupSurfaceHolder() {
         surfaceHolder = binding.surfaceView.holder
-        surfaceHolder.addCallback(this)
     }
 
     private fun resetData() {
@@ -359,11 +387,16 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         runGame()
+
     }
 
-    override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
+    override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
 
-    override fun surfaceDestroyed(p0: SurfaceHolder) {}
+    }
+
+    override fun surfaceDestroyed(p0: SurfaceHolder) {
+
+    }
 
     companion object {
         private const val STATE_GAME_NOT_STARTED = 0
