@@ -42,21 +42,19 @@ dependencies {
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    def utilsVersion = "1.2.9"
+    def utilsVersion = "2.0.0.1"
     implementation "com.github.ntduc-let.Utils:ActivityUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:AnimationUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:AppUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:ColorUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ContextUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:FileUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:MusicPlayerUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:NumberUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:RecyclerViewUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:StringUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:FragmentUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:NavigationUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ToastUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:VideoPlayerUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:ViewPager2Utils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ColorUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:StringUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:NumberUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:GlideUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:SharedPreferenceUtils:$utilsVersion"
 
     // Coroutines kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"

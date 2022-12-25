@@ -8,7 +8,7 @@
         android:fillType="evenOdd"
         android:pathData="M256,256m-256,0a256,256 0,1 1,512 0a256,256 0,1 1,-512 0" />
     <path
-        android:fillColor="#FFAB00"
+        android:fillColor="#FF6D00"
         android:fillType="evenOdd"
         android:pathData="M256,9.28c136.12,0 246.46,110.35 246.46,246.46 0,3.22 -0.08,6.42 -0.21,9.62C497.2,133.7 388.89,28.51 256,28.51S14.8,133.7 9.75,265.36c-0.13,-3.2 -0.21,-6.4 -0.21,-9.62C9.54,119.63 119.88,9.28 256,9.28z" />
     <path

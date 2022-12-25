@@ -1,4 +1,4 @@
-package com.ntduc.flappybird
+package com.ntduc.flappybird.activity
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -15,6 +16,7 @@ import com.ntduc.activityutils.enterFullScreenMode
 import com.ntduc.contextutils.displayHeight
 import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
+import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -127,37 +129,37 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private suspend fun hidePaused() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.paused.root.visibility = View.GONE
         }
     }
 
     private suspend fun showPaused() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.paused.root.visibility = View.VISIBLE
         }
     }
 
     private suspend fun hideScore() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.score.visibility = View.GONE
         }
     }
 
     private suspend fun showScore() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.score.visibility = View.VISIBLE
         }
     }
 
     private suspend fun hideScoreBoard() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.scoreboard.root.visibility = View.GONE
         }
     }
 
     private suspend fun showScoreBoard() {
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             binding.scoreboard.score.text = "$score"
             binding.scoreboard.root.visibility = View.VISIBLE
         }
@@ -327,6 +329,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun initData() {
+        level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
+
         createDataGame()
     }
 
@@ -345,10 +349,13 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         gameState = STATE_GAME_NOT_STARTED
 
         score = 0
+        binding.score.text = "$score"
         scoringTube = 0
 
         birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
         birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
+
+        updateDataLevel(level)
 
         tubeX.clear()
         topTubeY.clear()
@@ -356,6 +363,25 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
             topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
         }
+    }
+
+    private fun updateDataLevel(level: Int) {
+        when (level) {
+            LEVEL_EASY -> {
+                gap = GAP_EASY
+                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_EASY
+            }
+            LEVEL_MEDIUM -> {
+                gap = GAP_MEDIUM
+                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_MEDIUM
+            }
+            LEVEL_HARD -> {
+                gap = GAP_HARD
+                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_HARD
+            }
+        }
+        minTubeOffset = gap / 2
+        maxTubeOffset = mDisplayHeight - minTubeOffset - gap
     }
 
     private fun createDataGame() {
@@ -400,10 +426,24 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         private const val STATE_GAME_PLAYING = 1
         private const val STATE_GAME_PAUSED = 2
         private const val STATE_GAME_OVER = 3
+
+        const val LEVEL_GAME = "LEVEL_GAME"
+        const val LEVEL_EASY = 0
+        const val LEVEL_MEDIUM = 1
+        const val LEVEL_HARD = 2
+
+        private const val GAP_EASY = 600
+        private const val GAP_MEDIUM = 500
+        private const val GAP_HARD = 400
+
+        private const val DISTANCE_EASY = 300
+        private const val DISTANCE_MEDIUM = 100
+        private const val DISTANCE_HARD = 0
     }
 
     private lateinit var binding: ActivityPlayGameBinding
     private lateinit var surfaceHolder: SurfaceHolder
+    private var level: Int = LEVEL_EASY
 
     private var mediaHit: MediaPlayer? = null
     private var mediaPoint: MediaPlayer? = null

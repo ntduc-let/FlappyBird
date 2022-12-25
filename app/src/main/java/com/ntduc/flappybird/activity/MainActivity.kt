@@ -1,4 +1,4 @@
-package com.ntduc.flappybird
+package com.ntduc.flappybird.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +23,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initEvent() {
         binding.play.setOnClickListener {
-            startActivity(Intent(this, PlayGameActivity::class.java))
+            startActivity(Intent(this, ChooseLevelActivity::class.java))
+        }
+
+        binding.rank.setOnClickListener {
+
         }
     }
 }
