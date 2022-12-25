@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.SettingActivity">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txt_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:gravity="center"
+        android:text="Setting"
+        android:textAllCaps="true"
+        android:textColor="#FB9F49"
+        android:textSize="48sp"
+        app:fontFamily="@font/rubik_mono_one"
+        app:layout_constraintBottom_toTopOf="@+id/sound"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:background="@drawable/bg_sound"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_setting">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_master"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/layout_music"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txt_title_master"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Master"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/master"
+                app:layout_constraintStart_toStartOf="@+id/master" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/number_master"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/master"
+                app:layout_constraintEnd_toEndOf="@+id/master" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/master"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:valueFrom="0"
+                android:valueTo="100"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:thumbColor="#FF6D00"
+                app:trackColor="#FB9F49" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_music"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/layout_effects"
+            app:layout_constraintTop_toBottomOf="@+id/layout_master">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txt_title_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Music"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/music"
+                app:layout_constraintStart_toStartOf="@+id/music" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/number_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/music"
+                app:layout_constraintEnd_toEndOf="@+id/music" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:valueFrom="0"
+                android:valueTo="100"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:thumbColor="#FF6D00"
+                app:trackColor="#FB9F49" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_effects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layout_music">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/txt_title_effects"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Effects"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/effects"
+                app:layout_constraintStart_toStartOf="@+id/effects" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/number_effects"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0"
+                android:textAllCaps="true"
+                android:textColor="#FB9F49"
+                android:textSize="14sp"
+                app:fontFamily="@font/rubik_mono_one"
+                app:layout_constraintBottom_toTopOf="@+id/effects"
+                app:layout_constraintEnd_toEndOf="@+id/effects" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/effects"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:valueFrom="0"
+                android:valueTo="100"
+                app:labelBehavior="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:thumbColor="#FF6D00"
+                app:trackColor="#FB9F49" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

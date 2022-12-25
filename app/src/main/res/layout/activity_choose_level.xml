@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activity.ChooseLevelActivity">
 
-
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txt_title"
         android:layout_width="wrap_content"

@@ -205,7 +205,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             binding.scoreboard.best.text = when (level) {
                 LEVEL_EASY -> "${sharedPreferences.get(BEST_SCORE_EASY, 0)}"
                 LEVEL_MEDIUM -> "${sharedPreferences.get(BEST_SCORE_MEDIUM, 0)}"
-                LEVEL_HARD -> "{${sharedPreferences.get(BEST_SCORE_HARD, 0)}}"
+                LEVEL_HARD -> "${sharedPreferences.get(BEST_SCORE_HARD, 0)}"
                 else -> "0"
             }
         }

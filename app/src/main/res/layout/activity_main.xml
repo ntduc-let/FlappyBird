@@ -29,7 +29,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginTop="64dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bg_ripple_click_circle"
         android:padding="16dp"
         android:src="@drawable/ic_play_24dp"
@@ -43,14 +43,29 @@
         android:id="@+id/rank"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bg_ripple_click_circle"
         android:padding="16dp"
         android:src="@drawable/ic_chart_rank_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/setting"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/play" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/setting"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_ripple_click_circle"
+        android:padding="16dp"
+        android:src="@drawable/ic_setting_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rank" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

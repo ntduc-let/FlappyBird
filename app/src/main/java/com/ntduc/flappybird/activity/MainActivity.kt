@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         init()
     }
 
-    private fun init(){
+    private fun init() {
         initEvent()
     }
 
@@ -28,6 +28,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.rank.setOnClickListener {
 
+        }
+
+        binding.setting.setOnClickListener {
+            startActivity(Intent(this, SettingActivity::class.java))
         }
     }
 }
