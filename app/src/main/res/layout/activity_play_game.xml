@@ -12,6 +12,17 @@
         android:layout_height="match_parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/lever"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="#D50000"
+        android:textSize="14sp"
+        app:fontFamily="@font/rubik_mono_one"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

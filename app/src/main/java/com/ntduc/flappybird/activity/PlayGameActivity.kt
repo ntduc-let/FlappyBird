@@ -1,5 +1,6 @@
 package com.ntduc.flappybird.activity
 
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -18,6 +19,8 @@ import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
+import com.ntduc.sharedpreferenceutils.get
+import com.ntduc.sharedpreferenceutils.put
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -83,6 +86,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
                         drawBird(canvas)
+
+                        showLevel()
                         hideScoreBoard()
                         hideScore()
                         hidePaused()
@@ -92,6 +97,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                         updateBird(canvas)
 
+                        showLevel()
                         showScore()
                         hidePaused()
 
@@ -115,6 +121,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                         drawBird(canvas)
 
+                        hideLevel()
                         hideScore()
                         showScoreBoard()
                         hidePaused()
@@ -124,6 +131,23 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 withContext(Dispatchers.Main) {
                     if (surfaceHolder.surface.isValid) surfaceHolder.unlockCanvasAndPost(canvas)
                 }
+            }
+        }
+    }
+
+    private suspend fun hideLevel() {
+        withContext(Dispatchers.Main) {
+            binding.lever.visibility = View.GONE
+        }
+    }
+
+    private suspend fun showLevel() {
+        withContext(Dispatchers.Main) {
+            binding.lever.visibility = View.VISIBLE
+            when (level) {
+                LEVEL_EASY -> binding.lever.text = "Easy"
+                LEVEL_MEDIUM -> binding.lever.text = "Medium"
+                LEVEL_HARD -> binding.lever.text = "Hard"
             }
         }
     }
@@ -162,6 +186,28 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         withContext(Dispatchers.Main) {
             binding.scoreboard.score.text = "$score"
             binding.scoreboard.root.visibility = View.VISIBLE
+
+            var best = when (level) {
+                LEVEL_EASY -> sharedPreferences.get(BEST_SCORE_EASY, 0)
+                LEVEL_MEDIUM -> sharedPreferences.get(BEST_SCORE_MEDIUM, 0)
+                LEVEL_HARD -> sharedPreferences.get(BEST_SCORE_HARD, 0)
+                else -> 0
+            }
+            if (best < score) {
+                best = score
+                when (level) {
+                    LEVEL_EASY -> sharedPreferences.put(BEST_SCORE_EASY, best)
+                    LEVEL_MEDIUM -> sharedPreferences.put(BEST_SCORE_MEDIUM, best)
+                    LEVEL_HARD -> sharedPreferences.put(BEST_SCORE_HARD, best)
+                }
+            }
+
+            binding.scoreboard.best.text = when (level) {
+                LEVEL_EASY -> "${sharedPreferences.get(BEST_SCORE_EASY, 0)}"
+                LEVEL_MEDIUM -> "${sharedPreferences.get(BEST_SCORE_MEDIUM, 0)}"
+                LEVEL_HARD -> "{${sharedPreferences.get(BEST_SCORE_HARD, 0)}}"
+                else -> "0"
+            }
         }
     }
 
@@ -330,6 +376,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun initData() {
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
+        sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
         createDataGame()
     }
@@ -439,10 +486,15 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         private const val DISTANCE_EASY = 300
         private const val DISTANCE_MEDIUM = 100
         private const val DISTANCE_HARD = 0
+
+        private const val BEST_SCORE_EASY = "BEST_SCORE_EASY"
+        private const val BEST_SCORE_MEDIUM = "BEST_SCORE_MEDIUM"
+        private const val BEST_SCORE_HARD = "BEST_SCORE_HARD"
     }
 
     private lateinit var binding: ActivityPlayGameBinding
     private lateinit var surfaceHolder: SurfaceHolder
+    private lateinit var sharedPreferences: SharedPreferences
     private var level: Int = LEVEL_EASY
 
     private var mediaHit: MediaPlayer? = null

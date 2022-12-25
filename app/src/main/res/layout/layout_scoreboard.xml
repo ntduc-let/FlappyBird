@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
-            android:text="14"
+            android:text="0"
             android:textAllCaps="true"
             android:textColor="@color/white"
             android:textSize="18sp"
