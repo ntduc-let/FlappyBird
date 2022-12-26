@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -149,6 +150,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 LEVEL_EASY -> binding.lever.text = "Easy"
                 LEVEL_MEDIUM -> binding.lever.text = "Medium"
                 LEVEL_HARD -> binding.lever.text = "Hard"
+                LEVEL_VERY_HARD -> binding.lever.text = "Very Hard"
             }
         }
     }
@@ -192,6 +194,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 LEVEL_EASY -> sharedPreferences.get(BEST_SCORE_EASY, 0)
                 LEVEL_MEDIUM -> sharedPreferences.get(BEST_SCORE_MEDIUM, 0)
                 LEVEL_HARD -> sharedPreferences.get(BEST_SCORE_HARD, 0)
+                LEVEL_VERY_HARD -> sharedPreferences.get(BEST_SCORE_VERY_HARD, 0)
                 else -> 0
             }
             if (best < score) {
@@ -200,6 +203,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     LEVEL_EASY -> sharedPreferences.put(BEST_SCORE_EASY, best)
                     LEVEL_MEDIUM -> sharedPreferences.put(BEST_SCORE_MEDIUM, best)
                     LEVEL_HARD -> sharedPreferences.put(BEST_SCORE_HARD, best)
+                    LEVEL_VERY_HARD -> sharedPreferences.put(BEST_SCORE_VERY_HARD, best)
                 }
             }
 
@@ -207,6 +211,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 LEVEL_EASY -> "${sharedPreferences.get(BEST_SCORE_EASY, 0)}"
                 LEVEL_MEDIUM -> "${sharedPreferences.get(BEST_SCORE_MEDIUM, 0)}"
                 LEVEL_HARD -> "${sharedPreferences.get(BEST_SCORE_HARD, 0)}"
+                LEVEL_VERY_HARD -> "${sharedPreferences.get(BEST_SCORE_VERY_HARD, 0)}"
                 else -> "0"
             }
         }
@@ -270,8 +275,20 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 tubeX[i] += numberOfTubes * distanceBetweenTubes
                 topTubeY[i] =
                     minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1)
+
+                if (level == LEVEL_VERY_HARD){
+                    tubeMove[i] = tubeMoveDefault
+                }
             } else {
                 tubeX[i] -= tubeVelocity
+                if (level == LEVEL_VERY_HARD) {
+                    tubeMove[i] =
+                        if ((topTubeY[i] + tubeMove[i] <= minTubeOffset)
+                            || (topTubeY[i] + tubeMove[i] >= maxTubeOffset!!))
+                            0 - tubeMove[i]
+                        else tubeMove[i]
+                    topTubeY[i] += tubeMove[i]
+                }
             }
         }
         drawTube(canvas)
@@ -313,7 +330,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private val delay = 100L
     private var current = System.currentTimeMillis()
     private suspend fun drawBird(canvas: Canvas) {
-        if (System.currentTimeMillis() - current >= delay){
+        if (System.currentTimeMillis() - current >= delay) {
             current = System.currentTimeMillis()
             birdFrame = if (birdFrame == 0) 1 else 0
         }
@@ -419,6 +436,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         for (i in 0 until numberOfTubes) {
             tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
             topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
+
+            if (level == LEVEL_VERY_HARD){
+                tubeMove.add(tubeMoveDefault)
+            }
         }
     }
 
@@ -432,7 +453,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 gap = GAP_MEDIUM
                 distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_MEDIUM
             }
-            LEVEL_HARD -> {
+            LEVEL_HARD, LEVEL_VERY_HARD -> {
                 gap = GAP_HARD
                 distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_HARD
             }
@@ -490,6 +511,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         const val LEVEL_EASY = 0
         const val LEVEL_MEDIUM = 1
         const val LEVEL_HARD = 2
+        const val LEVEL_VERY_HARD = 3
 
         private const val GAP_EASY = 600
         private const val GAP_MEDIUM = 500
@@ -502,6 +524,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         private const val BEST_SCORE_EASY = "BEST_SCORE_EASY"
         private const val BEST_SCORE_MEDIUM = "BEST_SCORE_MEDIUM"
         private const val BEST_SCORE_HARD = "BEST_SCORE_HARD"
+        private const val BEST_SCORE_VERY_HARD = "BEST_SCORE_VERY_HARD"
     }
 
     private lateinit var binding: ActivityPlayGameBinding
@@ -542,6 +565,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var topTubeY: ArrayList<Int> = arrayListOf()
     private var random: Random = Random()
     private var tubeVelocity: Int = 8               //Vận tốc tube
+    private var tubeMove: ArrayList<Int> = arrayListOf()
+    private var tubeMoveDefault = 2
 
     private var score: Int = 0
     private var scoringTube: Int? = 0

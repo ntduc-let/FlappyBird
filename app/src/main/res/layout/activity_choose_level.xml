@@ -72,14 +72,14 @@
         android:textSize="24sp"
         app:fontFamily="@font/rubik_mono_one"
         app:layout_constraintBottom_toTopOf="@+id/medium"
-        app:layout_constraintEnd_toEndOf="@+id/medium"
+        app:layout_constraintEnd_toEndOf="@+id/very_hard"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/medium"
+        app:layout_constraintStart_toStartOf="@+id/very_hard"
         app:layout_constraintTop_toBottomOf="@+id/txt_title" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/medium"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -90,9 +90,9 @@
         android:textSize="24sp"
         app:fontFamily="@font/rubik_mono_one"
         app:layout_constraintBottom_toTopOf="@+id/hard"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/very_hard"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/very_hard"
         app:layout_constraintTop_toBottomOf="@+id/easy" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -100,17 +100,34 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bg_button"
         android:paddingHorizontal="32dp"
         android:text="Hard"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:fontFamily="@font/rubik_mono_one"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/medium"
+        app:layout_constraintBottom_toTopOf="@id/very_hard"
+        app:layout_constraintEnd_toEndOf="@+id/very_hard"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/medium"
+        app:layout_constraintStart_toStartOf="@+id/very_hard"
         app:layout_constraintTop_toBottomOf="@+id/medium" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/very_hard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/bg_button"
+        android:paddingHorizontal="32dp"
+        android:text="Very Hard"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:fontFamily="@font/rubik_mono_one"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/hard" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -108,6 +108,12 @@ class ChooseLevelActivity : AppCompatActivity() {
             startGame(PlayGameActivity.LEVEL_HARD)
             finish()
         }
+
+        binding.veryHard.setOnClickListener {
+            App.getInstance().startEffect()
+            startGame(PlayGameActivity.LEVEL_VERY_HARD)
+            finish()
+        }
     }
 
     private fun startGame(level: Int) {
