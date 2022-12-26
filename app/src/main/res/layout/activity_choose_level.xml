@@ -7,10 +7,45 @@
     tools:context=".activity.ChooseLevelActivity">
 
     <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txt_bird"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="Bird"
+        android:textAllCaps="true"
+        android:textColor="#FB9F49"
+        android:textSize="48sp"
+        app:fontFamily="@font/rubik_mono_one"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ic_choose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_choose_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_bird" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp_birds"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:paddingHorizontal="100dp"
+        app:layout_constraintDimensionRatio="5:1"
+        app:layout_constraintTop_toBottomOf="@id/ic_choose" />
+
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="32dp"
         android:gravity="center"
         android:text="Level"
         android:textAllCaps="true"
@@ -21,14 +56,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/vp_birds"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/easy"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="32dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/bg_button"
         android:paddingHorizontal="32dp"

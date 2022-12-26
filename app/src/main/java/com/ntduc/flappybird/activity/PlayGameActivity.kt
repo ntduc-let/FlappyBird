@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -20,6 +19,7 @@ import com.ntduc.contextutils.inflater
 import com.ntduc.flappybird.App
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
+import com.ntduc.flappybird.model.Bird
 import com.ntduc.sharedpreferenceutils.get
 import com.ntduc.sharedpreferenceutils.put
 import kotlinx.coroutines.Dispatchers
@@ -310,8 +310,13 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
+    private val delay = 100L
+    private var current = System.currentTimeMillis()
     private suspend fun drawBird(canvas: Canvas) {
-        birdFrame = if (birdFrame == 0) 1 else 0
+        if (System.currentTimeMillis() - current >= delay){
+            current = System.currentTimeMillis()
+            birdFrame = if (birdFrame == 0) 1 else 0
+        }
         withContext(Dispatchers.Main) {
             canvas.drawBitmap(mBirds[birdFrame], birdX, birdY, null)
         }
@@ -380,6 +385,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun initData() {
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
+        bird = intent.getParcelableExtra(TYPE_BIRD)
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
         createDataGame()
@@ -449,8 +455,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         mRect = Rect(0, 0, mDisplayWidth, mDisplayHeight)
 
         mBirds = listOf(
-            BitmapFactory.decodeResource(resources, R.drawable.bird),
-            BitmapFactory.decodeResource(resources, R.drawable.bird2)
+            BitmapFactory.decodeResource(resources, bird!!.bird1),
+            BitmapFactory.decodeResource(resources, bird!!.bird2)
         )
 
         distanceBetweenTubes = mDisplayWidth * 3 / 4
@@ -479,6 +485,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         private const val STATE_GAME_OVER = 3
 
         const val LEVEL_GAME = "LEVEL_GAME"
+        const val TYPE_BIRD = "TYPE_BIRD"
+
         const val LEVEL_EASY = 0
         const val LEVEL_MEDIUM = 1
         const val LEVEL_HARD = 2
@@ -500,6 +508,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var sharedPreferences: SharedPreferences
     private var level: Int = LEVEL_EASY
+    private var bird: Bird? = null
 
     private var mediaHit: MediaPlayer? = null
     private var mediaPoint: MediaPlayer? = null
