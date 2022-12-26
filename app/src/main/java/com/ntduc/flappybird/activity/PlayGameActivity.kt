@@ -17,6 +17,7 @@ import com.ntduc.activityutils.enterFullScreenMode
 import com.ntduc.contextutils.displayHeight
 import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
+import com.ntduc.flappybird.App
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
 import com.ntduc.sharedpreferenceutils.get
@@ -330,6 +331,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private fun createMediaPoint() {
         mediaPoint?.reset()
         mediaPoint = MediaPlayer.create(this, R.raw.point)
+        mediaPoint?.setVolume(volume / 100, volume / 100)
     }
 
     private fun startMediaHit() {
@@ -340,6 +342,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private fun createMediaHit() {
         mediaHit?.reset()
         mediaHit = MediaPlayer.create(this, R.raw.hit)
+        mediaHit?.setVolume(volume / 100, volume / 100)
     }
 
     private fun startMediaWing() {
@@ -350,6 +353,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private fun createMediaWing() {
         mediaWing?.reset()
         mediaWing = MediaPlayer.create(this, R.raw.wing)
+        mediaWing?.setVolume(volume / 100, volume / 100)
     }
 
     private fun initEvent() {
@@ -500,6 +504,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mediaHit: MediaPlayer? = null
     private var mediaPoint: MediaPlayer? = null
     private var mediaWing: MediaPlayer? = null
+    private val volume =
+        (App.getInstance().getVolumeEffect() * App.getInstance().getVolumeMaster()).toFloat() / 100
 
     private var mBackground: Bitmap? = null
     private var mTopTube: Bitmap? = null

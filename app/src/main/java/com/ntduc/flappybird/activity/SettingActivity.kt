@@ -28,17 +28,44 @@ class SettingActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        val volumeMaster = App.getInstance().getVolume()
+        val volumeMaster = App.getInstance().getVolumeMaster()
         binding.master.value = volumeMaster.toFloat()
         binding.numberMaster.text = "$volumeMaster"
+
+        val volumeMusic = App.getInstance().getVolumeMusic()
+        binding.music.value = volumeMusic.toFloat()
+        binding.numberMusic.text = "$volumeMusic"
+
+        val volumeEffect = App.getInstance().getVolumeEffect()
+        binding.effects.value = volumeEffect.toFloat()
+        binding.numberEffects.text = "$volumeEffect"
     }
 
     private fun initEvent() {
         binding.master.addOnChangeListener { _, value, fromUser ->
-            if (fromUser){
+            if (fromUser) {
                 binding.numberMaster.text = "${value.toInt()}"
-                App.getInstance().setVolume(value.toInt())
+                App.getInstance().setVolumeMaster(value.toInt())
             }
         }
+
+        binding.music.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                binding.numberMusic.text = "${value.toInt()}"
+                App.getInstance().setVolumeMusic(value.toInt())
+            }
+        }
+
+        binding.effects.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                binding.numberEffects.text = "${value.toInt()}"
+                App.getInstance().setVolumeEffect(value.toInt())
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        App.getInstance().startEffect()
+        super.onBackPressed()
     }
 }
