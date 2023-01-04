@@ -96,6 +96,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     }
                     STATE_GAME_PLAYING -> {
                         updateTube(canvas)
+                        updateCoin(canvas)
 
                         updateBird(canvas)
 
@@ -103,16 +104,21 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         showScore()
                         hidePaused()
 
+                        if (isBirdHitCoin()) {
+                            updateScoreCoin()
+                        }
+
                         if (isBirdHitTube()) {
                             startMediaHit()
 
                             gameState = STATE_GAME_OVER
                         } else {
-                            updateScore()
+                            updateScoreTube()
                         }
                     }
                     STATE_GAME_PAUSED -> {
                         drawTube(canvas)
+                        drawCoin(canvas)
 
                         drawBird(canvas)
 
@@ -120,6 +126,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     }
                     STATE_GAME_OVER -> {
                         drawTube(canvas)
+                        drawCoin(canvas)
 
                         drawBird(canvas)
 
@@ -227,6 +234,19 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         return false
     }
 
+    private fun isBirdHitCoin(): Boolean {
+        for (i in 0 until numberOfTubes) {
+            if (birdX.toInt() + mBirds[0].width >= coinX[i]
+                && (birdY.toInt() + mBirds[0].height >= coinY[i] && birdY.toInt() <= coinY[i] + mCoin!!.height)
+                && birdX.toInt() <= coinX[i] + mCoin!!.width
+            ) {
+                coinIndex[i] = false
+                return true
+            }
+        }
+        return false
+    }
+
     override fun onTouch(view: View?, event: MotionEvent?): Boolean {
         val action = event?.action
 
@@ -255,7 +275,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         return true
     }
 
-    private suspend fun updateScore() {
+    private suspend fun updateScoreTube() {
         if (tubeX[scoringTube!!] < (birdX - mTopTube!!.width)) {
             score += 1
             scoringTube =
@@ -269,6 +289,36 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
+    private suspend fun updateScoreCoin() {
+        if (scoringCoin) {
+            score += 5
+            scoringCoin = false
+
+            startMediaPoint()
+
+            withContext(Dispatchers.Main) {
+                binding.score.text = "$score"
+            }
+        }
+    }
+
+    private suspend fun updateCoin(canvas: Canvas) {
+        for (i in 0 until numberOfTubes) {
+            if (coinX[i] < -mCoin!!.width) {   //Xét coin ra ngoài màn hình
+                scoringCoin = true
+                coinIndex[i] = true
+                coinX[i] =
+                    tubeX[i] + mTopTube!!.width + random.nextInt(distanceBetweenTubes - mTopTube!!.width - (2 * mCoin!!.width) + 1)
+                coinY[i] =
+                    minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1)
+            } else {
+                coinX[i] -= tubeVelocity
+            }
+        }
+        drawCoin(canvas)
+    }
+
+
     private suspend fun updateTube(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
             if (tubeX[i] < -mTopTube!!.width) {   //Xét tube ra ngoài màn hình
@@ -276,7 +326,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 topTubeY[i] =
                     minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1)
 
-                if (level == LEVEL_VERY_HARD){
+                if (level == LEVEL_VERY_HARD) {
                     tubeMove[i] = tubeMoveDefault
                 }
             } else {
@@ -284,7 +334,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 if (level == LEVEL_VERY_HARD) {
                     tubeMove[i] =
                         if ((topTubeY[i] + tubeMove[i] <= minTubeOffset)
-                            || (topTubeY[i] + tubeMove[i] >= maxTubeOffset!!))
+                            || (topTubeY[i] + tubeMove[i] >= maxTubeOffset!!)
+                        )
                             0 - tubeMove[i]
                         else tubeMove[i]
                     topTubeY[i] += tubeMove[i]
@@ -305,7 +356,23 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
             gameState = STATE_GAME_OVER
         }
+        updateDatabaseBird()
         drawBird(canvas)
+    }
+
+    private suspend fun drawCoin(canvas: Canvas) {
+        for (i in 0 until numberOfTubes) {
+            if (coinIndex[i]) {
+                withContext(Dispatchers.Main) {
+                    canvas.drawBitmap(
+                        mCoin!!,
+                        coinX[i].toFloat(),
+                        coinY[i].toFloat(),
+                        null
+                    )
+                }
+            }
+        }
     }
 
     private suspend fun drawTube(canvas: Canvas) {
@@ -425,10 +492,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         score = 0
         binding.score.text = "$score"
         scoringTube = 0
+        scoringCoin = true
 
         birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
         birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
 
+        updateDatabaseBird()
         updateDataLevel(level)
 
         tubeX.clear()
@@ -437,9 +506,18 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
             topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
 
-            if (level == LEVEL_VERY_HARD){
+            if (level == LEVEL_VERY_HARD) {
                 tubeMove.add(tubeMoveDefault)
             }
+        }
+
+        coinX.clear()
+        coinY.clear()
+        coinIndex.clear()
+        for (i in 0 until numberOfTubes) {
+            coinX.add(tubeX[i] + mTopTube!!.width + random.nextInt(distanceBetweenTubes - mTopTube!!.width - (2 * mCoin!!.width) + 1))
+            coinY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
+            coinIndex.add(true)
         }
     }
 
@@ -466,6 +544,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         mBackground = BitmapFactory.decodeResource(resources, R.drawable.bg)
         mTopTube = BitmapFactory.decodeResource(resources, R.drawable.toptube)
         mBottomTube = BitmapFactory.decodeResource(resources, R.drawable.bottomtube)
+        mCoin = BitmapFactory.decodeResource(resources, R.drawable.coin)
         val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         val heightNavigationBar = if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
@@ -497,6 +576,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     override fun surfaceDestroyed(p0: SurfaceHolder) {
 
+    }
+
+    private fun updateDatabaseBird() {
+        bird!!.birdX = birdX
+        bird!!.birdY = birdY
+        App.getDatabase().getReference("bird").setValue(bird)
     }
 
     companion object {
@@ -542,6 +627,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mBackground: Bitmap? = null
     private var mTopTube: Bitmap? = null
     private var mBottomTube: Bitmap? = null
+    private var mCoin: Bitmap? = null
     private var mDisplayWidth: Int = 0              //Width screen
     private var mDisplayHeight: Int = 0             //Height screen
     private var mRect: Rect? = null
@@ -563,6 +649,9 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var maxTubeOffset: Int? = null
     private var tubeX: ArrayList<Int> = arrayListOf()
     private var topTubeY: ArrayList<Int> = arrayListOf()
+    private var coinX: ArrayList<Int> = arrayListOf()
+    private var coinY: ArrayList<Int> = arrayListOf()
+    private var coinIndex: ArrayList<Boolean> = arrayListOf()
     private var random: Random = Random()
     private var tubeVelocity: Int = 8               //Vận tốc tube
     private var tubeMove: ArrayList<Int> = arrayListOf()
@@ -570,4 +659,5 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private var score: Int = 0
     private var scoringTube: Int? = 0
+    private var scoringCoin: Boolean = true
 }
