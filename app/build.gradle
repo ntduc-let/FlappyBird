@@ -1,7 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'kotlin-android'
+    id 'kotlin-platform-android'
+    id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id 'com.google.dagger.hilt.android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id 'com.google.firebase.firebase-perf'
 }
 
 android {
@@ -43,10 +51,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    def utilsVersion = "2.0.0.1"
+    def utilsVersion = "2.0.4.0"
     implementation "com.github.ntduc-let.Utils:ActivityUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ContextUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:FragmentUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:ViewUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:NavigationUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ToastUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:ColorUtils:$utilsVersion"
@@ -54,8 +63,22 @@ dependencies {
     implementation "com.github.ntduc-let.Utils:NumberUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:GlideUtils:$utilsVersion"
-    implementation "com.github.ntduc-let.Utils:DateTimeUtils:$utilsVersion"
     implementation "com.github.ntduc-let.Utils:SharedPreferenceUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:FileUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:SecurityUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:AppUtils:$utilsVersion"
+    implementation "com.github.ntduc-let.Utils:RecyclerViewUtils:$utilsVersion"
+
+    //Hilt
+    def hiltVersion = "2.44"
+    implementation "com.google.dagger:hilt-android:$hiltVersion"
+    kapt "com.google.dagger:hilt-compiler:$hiltVersion"
+
+    //Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-perf-ktx'
 
     // Coroutines kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
