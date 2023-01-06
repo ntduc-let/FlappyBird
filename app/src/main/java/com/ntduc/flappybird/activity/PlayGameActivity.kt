@@ -3,7 +3,6 @@ package com.ntduc.flappybird.activity
 import android.content.SharedPreferences
 import android.graphics.*
 import android.media.MediaPlayer
-import android.media.MediaPlayer.OnPreparedListener
 import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
@@ -86,8 +85,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
-//                        drawCloud(cloud1!!, mCloud1!!, canvas)
-//                        drawCloud(cloud2!!, mCloud2!!, canvas)
                         drawBird(canvas)
 
                         showLevel()
@@ -96,9 +93,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         hidePaused()
                     }
                     STATE_GAME_PLAYING -> {
-//                        updateCloud(cloud1!!, mCloud1!!, canvas)
-//                        updateCloud(cloud2!!, mCloud2!!, canvas)
-
                         updateTube(canvas)
                         updateCoin(canvas)
 
@@ -121,9 +115,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         }
                     }
                     STATE_GAME_PAUSED -> {
-//                        drawCloud(cloud1!!, mCloud1!!, canvas)
-//                        drawCloud(cloud2!!, mCloud2!!, canvas)
-
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -132,9 +123,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         showPaused()
                     }
                     STATE_GAME_OVER -> {
-//                        drawCloud(cloud1!!, mCloud1!!, canvas)
-//                        drawCloud(cloud2!!, mCloud2!!, canvas)
-
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -516,8 +504,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
         bird = intent.getParcelableExtra(TYPE_BIRD)
         tube = Tube(1, R.drawable.toptube, R.drawable.bottomtube)
-        cloud1 = Cloud(1, R.drawable.cloud1)
-        cloud2 = Cloud(1, R.drawable.cloud6)
         coin = Coin(1, R.drawable.coin)
         score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
@@ -589,18 +575,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             coin!!.coinY.add(tube!!.minTubeOffset + random.nextInt(tube!!.maxTubeOffset - tube!!.minTubeOffset + 1))
             coin!!.coinShowing.add(true)
         }
-
-        createDataCloud(cloud1!!)
-        createDataCloud(cloud2!!)
-    }
-
-    private fun createDataCloud(cloud: Cloud) {
-        cloud.cloudX.clear()
-        cloud.cloudY.clear()
-        for (i in 0 until numberOfTubes) {
-            cloud.cloudX.add(mDisplayWidth * (i + 1) + random.nextInt(mDisplayWidth))
-            cloud.cloudY.add(random.nextInt(mDisplayHeight))
-        }
     }
 
     private fun updateDataLevel(level: Int) {
@@ -623,8 +597,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun createDataGame() {
-        mCloud1 = BitmapFactory.decodeResource(resources, cloud1!!.cloudRes)
-        mCloud2 = BitmapFactory.decodeResource(resources, cloud2!!.cloudRes)
         mTopTube = BitmapFactory.decodeResource(resources, tube!!.tubeTopRes)
         mBottomTube = BitmapFactory.decodeResource(resources, tube!!.tubeBottomRes)
         mCoin = BitmapFactory.decodeResource(resources, coin!!.coinRes)
@@ -719,19 +691,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mTopTube: Bitmap? = null
     private var mBottomTube: Bitmap? = null
     private var numberOfTubes: Int = 2
-
-    private var cloud1: Cloud? = null
-    private var cloud2: Cloud? = null
-    private var cloud3: Cloud? = null
-    private var cloud4: Cloud? = null
-    private var cloud5: Cloud? = null
-    private var cloud6: Cloud? = null
-    private var mCloud1: Bitmap? = null
-    private var mCloud2: Bitmap? = null
-    private var mCloud3: Bitmap? = null
-    private var mCloud4: Bitmap? = null
-    private var mCloud5: Bitmap? = null
-    private var mCloud6: Bitmap? = null
 
     private var coin: Coin? = null
     private var mCoin: Bitmap? = null
