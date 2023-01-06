@@ -6,16 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".activity.PlayGameActivity">
 
+    <VideoView
+        android:id="@+id/videoBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <SurfaceView
         android:id="@+id/surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:background="#FAD5B8" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/lever"

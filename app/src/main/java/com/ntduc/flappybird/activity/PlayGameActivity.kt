@@ -3,6 +3,8 @@ package com.ntduc.flappybird.activity
 import android.content.SharedPreferences
 import android.graphics.*
 import android.media.MediaPlayer
+import android.media.MediaPlayer.OnPreparedListener
+import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -23,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+
 
 class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTouchListener {
 
@@ -83,7 +86,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
-                        drawCloud(canvas)
+//                        drawCloud(cloud1!!, mCloud1!!, canvas)
+//                        drawCloud(cloud2!!, mCloud2!!, canvas)
                         drawBird(canvas)
 
                         showLevel()
@@ -92,7 +96,9 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         hidePaused()
                     }
                     STATE_GAME_PLAYING -> {
-                        updateCloud(canvas)
+//                        updateCloud(cloud1!!, mCloud1!!, canvas)
+//                        updateCloud(cloud2!!, mCloud2!!, canvas)
+
                         updateTube(canvas)
                         updateCoin(canvas)
 
@@ -115,7 +121,9 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         }
                     }
                     STATE_GAME_PAUSED -> {
-                        drawCloud(canvas)
+//                        drawCloud(cloud1!!, mCloud1!!, canvas)
+//                        drawCloud(cloud2!!, mCloud2!!, canvas)
+
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -124,7 +132,9 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         showPaused()
                     }
                     STATE_GAME_OVER -> {
-                        drawCloud(canvas)
+//                        drawCloud(cloud1!!, mCloud1!!, canvas)
+//                        drawCloud(cloud2!!, mCloud2!!, canvas)
+
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -188,16 +198,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private suspend fun hideScoreBoard() {
         withContext(Dispatchers.Main) {
-            binding.surfaceView.setZOrderOnTop(true)
-
             binding.scoreboard.root.visibility = View.GONE
         }
     }
 
     private suspend fun showScoreBoard() {
         withContext(Dispatchers.Main) {
-            binding.surfaceView.setZOrderOnTop(false)
-
             binding.scoreboard.score.text = "${score!!.score}"
             binding.scoreboard.root.visibility = View.VISIBLE
 
@@ -306,17 +312,17 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         }
     }
 
-    private suspend fun updateCloud(canvas: Canvas) {
-        for (i in 0 until numberOfTubes) {
-            if (cloud!!.cloudX[i] < -mCloud!!.width) {   //Xét tube ra ngoài màn hình
-                cloud!!.cloudX[i] = numberOfTubes * mDisplayWidth + random.nextInt(mDisplayWidth)
-                cloud!!.cloudY[i] = random.nextInt(mDisplayHeight)
-            } else {
-                cloud!!.cloudX[i] -= cloud!!.cloudVelocity
-            }
-        }
-        drawCloud(canvas)
-    }
+//    private suspend fun updateCloud(cloud: Cloud, mCloud: Bitmap, canvas: Canvas) {
+//        for (i in 0 until numberOfTubes) {
+//            if (cloud.cloudX[i] < -mCloud.width) {   //Xét tube ra ngoài màn hình
+//                cloud.cloudX[i] = numberOfTubes * mDisplayWidth + random.nextInt(mDisplayWidth)
+//                cloud.cloudY[i] = random.nextInt(mDisplayHeight)
+//            } else {
+//                cloud.cloudX[i] -= cloud.cloudVelocity
+//            }
+//        }
+//        drawCloud(cloud, mCloud, canvas)
+//    }
 
     private suspend fun updateCoin(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
@@ -377,18 +383,18 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         drawBird(canvas)
     }
 
-    private suspend fun drawCloud(canvas: Canvas) {
-        for (i in 0 until numberOfTubes) {
-            withContext(Dispatchers.Main) {
-                canvas.drawBitmap(
-                    mCloud!!,
-                    cloud!!.cloudX[i].toFloat(),
-                    cloud!!.cloudY[i].toFloat(),
-                    null
-                )
-            }
-        }
-    }
+//    private suspend fun drawCloud(cloud: Cloud, mCloud: Bitmap, canvas: Canvas) {
+//        for (i in 0 until numberOfTubes) {
+//            withContext(Dispatchers.Main) {
+//                canvas.drawBitmap(
+//                    mCloud,
+//                    cloud.cloudX[i].toFloat(),
+//                    cloud.cloudY[i].toFloat(),
+//                    null
+//                )
+//            }
+//        }
+//    }
 
     private suspend fun drawCoin(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
@@ -503,13 +509,15 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         enterFullScreenMode()
 
         setupSurfaceHolder()
+        setupVideoBackground()
     }
 
     private fun initData() {
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
         bird = intent.getParcelableExtra(TYPE_BIRD)
         tube = Tube(1, R.drawable.toptube, R.drawable.bottomtube)
-        cloud = Cloud(1, R.drawable.cloud)
+        cloud1 = Cloud(1, R.drawable.cloud1)
+        cloud2 = Cloud(1, R.drawable.cloud6)
         coin = Coin(1, R.drawable.coin)
         score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
@@ -523,9 +531,26 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         initEvent()
     }
 
-    private fun setupSurfaceHolder() {
-        binding.surfaceView.setZOrderOnTop(true)
+    private fun setupVideoBackground() {
+        binding.videoBackground.setOnPreparedListener {
+            val videoRatio = it.videoWidth / it.videoHeight.toFloat()
+            val screenRatio = binding.videoBackground.width / binding.videoBackground.height.toFloat()
+            val scaleX = videoRatio / screenRatio
+            if (scaleX >= 1f) {
+                binding.videoBackground.scaleX = scaleX
+            } else {
+                binding.videoBackground.scaleY = 1f / scaleX
+            }
 
+            it.isLooping = true
+        }
+
+        val uri = Uri.parse("android.resource://" + packageName + "/" + R.raw.background1)
+        binding.videoBackground.setVideoURI(uri)
+        binding.videoBackground.start()
+    }
+
+    private fun setupSurfaceHolder() {
         surfaceHolder = binding.surfaceView.holder
         surfaceHolder.setFormat(PixelFormat.TRANSLUCENT)
         surfaceHolder.addCallback(this)
@@ -565,11 +590,16 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             coin!!.coinShowing.add(true)
         }
 
-        cloud!!.cloudX.clear()
-        cloud!!.cloudY.clear()
+        createDataCloud(cloud1!!)
+        createDataCloud(cloud2!!)
+    }
+
+    private fun createDataCloud(cloud: Cloud) {
+        cloud.cloudX.clear()
+        cloud.cloudY.clear()
         for (i in 0 until numberOfTubes) {
-            cloud!!.cloudX.add(mDisplayWidth * (i + 1) + random.nextInt(mDisplayWidth))
-            cloud!!.cloudY.add(random.nextInt(mDisplayHeight))
+            cloud.cloudX.add(mDisplayWidth * (i + 1) + random.nextInt(mDisplayWidth))
+            cloud.cloudY.add(random.nextInt(mDisplayHeight))
         }
     }
 
@@ -593,7 +623,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun createDataGame() {
-        mCloud = BitmapFactory.decodeResource(resources, cloud!!.cloudRes)
+        mCloud1 = BitmapFactory.decodeResource(resources, cloud1!!.cloudRes)
+        mCloud2 = BitmapFactory.decodeResource(resources, cloud2!!.cloudRes)
         mTopTube = BitmapFactory.decodeResource(resources, tube!!.tubeTopRes)
         mBottomTube = BitmapFactory.decodeResource(resources, tube!!.tubeBottomRes)
         mCoin = BitmapFactory.decodeResource(resources, coin!!.coinRes)
@@ -689,8 +720,18 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var mBottomTube: Bitmap? = null
     private var numberOfTubes: Int = 2
 
-    private var cloud: Cloud? = null
-    private var mCloud: Bitmap? = null
+    private var cloud1: Cloud? = null
+    private var cloud2: Cloud? = null
+    private var cloud3: Cloud? = null
+    private var cloud4: Cloud? = null
+    private var cloud5: Cloud? = null
+    private var cloud6: Cloud? = null
+    private var mCloud1: Bitmap? = null
+    private var mCloud2: Bitmap? = null
+    private var mCloud3: Bitmap? = null
+    private var mCloud4: Bitmap? = null
+    private var mCloud5: Bitmap? = null
+    private var mCloud6: Bitmap? = null
 
     private var coin: Coin? = null
     private var mCoin: Bitmap? = null
