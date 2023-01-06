@@ -38,7 +38,7 @@ class SliderBirdsAdapter(
     override fun onBindViewHolder(holder: BirdViewHolder, position: Int) {
         val item = listOriginal[position]
 
-        holder.binding.item.setImageResource(item.bird1)
+        holder.binding.item.setImageResource(item.bird1Res)
     }
 
     override fun getItemCount(): Int = listOriginal.size

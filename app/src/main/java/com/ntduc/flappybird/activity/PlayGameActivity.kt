@@ -1,13 +1,9 @@
 package com.ntduc.flappybird.activity
 
 import android.content.SharedPreferences
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Rect
+import android.graphics.*
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
@@ -20,7 +16,7 @@ import com.ntduc.contextutils.inflater
 import com.ntduc.flappybird.App
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
-import com.ntduc.flappybird.model.Bird
+import com.ntduc.flappybird.model.*
 import com.ntduc.sharedpreferenceutils.get
 import com.ntduc.sharedpreferenceutils.put
 import kotlinx.coroutines.Dispatchers
@@ -83,10 +79,11 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                     surfaceHolder.lockCanvas()
                 } ?: continue
 
-                drawBackGroundGame(canvas)
+                clearBackGroundGame(canvas)
 
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
+                        drawCloud(canvas)
                         drawBird(canvas)
 
                         showLevel()
@@ -95,6 +92,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         hidePaused()
                     }
                     STATE_GAME_PLAYING -> {
+                        updateCloud(canvas)
                         updateTube(canvas)
                         updateCoin(canvas)
 
@@ -117,6 +115,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         }
                     }
                     STATE_GAME_PAUSED -> {
+                        drawCloud(canvas)
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -125,6 +124,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                         showPaused()
                     }
                     STATE_GAME_OVER -> {
+                        drawCloud(canvas)
                         drawTube(canvas)
                         drawCoin(canvas)
 
@@ -188,13 +188,17 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private suspend fun hideScoreBoard() {
         withContext(Dispatchers.Main) {
+            binding.surfaceView.setZOrderOnTop(true)
+
             binding.scoreboard.root.visibility = View.GONE
         }
     }
 
     private suspend fun showScoreBoard() {
         withContext(Dispatchers.Main) {
-            binding.scoreboard.score.text = "$score"
+            binding.surfaceView.setZOrderOnTop(false)
+
+            binding.scoreboard.score.text = "${score!!.score}"
             binding.scoreboard.root.visibility = View.VISIBLE
 
             var best = when (level) {
@@ -204,8 +208,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 LEVEL_VERY_HARD -> sharedPreferences.get(BEST_SCORE_VERY_HARD, 0)
                 else -> 0
             }
-            if (best < score) {
-                best = score
+            if (best < score!!.score) {
+                best = score!!.score
                 when (level) {
                     LEVEL_EASY -> sharedPreferences.put(BEST_SCORE_EASY, best)
                     LEVEL_MEDIUM -> sharedPreferences.put(BEST_SCORE_MEDIUM, best)
@@ -226,9 +230,9 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun isBirdHitTube(): Boolean {
         for (i in 0 until numberOfTubes) {
-            if (birdX.toInt() + mBirds[0].width >= tubeX[i]
-                && (birdY.toInt() <= topTubeY[i] || birdY.toInt() + mBirds[0].height >= topTubeY[i] + gap)
-                && birdX.toInt() <= tubeX[i] + mTopTube!!.width
+            if (bird!!.birdX.toInt() + mBirds[0].width >= tube!!.tubeX[i]
+                && (bird!!.birdY.toInt() <= tube!!.topTubeY[i] || bird!!.birdY.toInt() + mBirds[0].height >= tube!!.topTubeY[i] + tube!!.gap)
+                && bird!!.birdX.toInt() <= tube!!.tubeX[i] + mTopTube!!.width
             ) return true
         }
         return false
@@ -236,11 +240,11 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private fun isBirdHitCoin(): Boolean {
         for (i in 0 until numberOfTubes) {
-            if (birdX.toInt() + mBirds[0].width >= coinX[i]
-                && (birdY.toInt() + mBirds[0].height >= coinY[i] && birdY.toInt() <= coinY[i] + mCoin!!.height)
-                && birdX.toInt() <= coinX[i] + mCoin!!.width
+            if (bird!!.birdX.toInt() + mBirds[0].width >= coin!!.coinX[i]
+                && (bird!!.birdY.toInt() + mBirds[0].height >= coin!!.coinY[i] && bird!!.birdY.toInt() <= coin!!.coinY[i] + mCoin!!.height)
+                && bird!!.birdX.toInt() <= coin!!.coinX[i] + mCoin!!.width
             ) {
-                coinIndex[i] = false
+                coin!!.coinShowing[i] = false
                 return true
             }
         }
@@ -256,13 +260,13 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 STATE_GAME_NOT_STARTED -> {
                     startMediaWing()
 
-                    velocity = -30
+                    bird!!.velocity = -30
                     gameState = STATE_GAME_PLAYING
                 }
                 STATE_GAME_PLAYING -> {
                     startMediaWing()
 
-                    velocity = -30
+                    bird!!.velocity = -30
                 }
                 STATE_GAME_PAUSED -> {
 
@@ -276,43 +280,55 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private suspend fun updateScoreTube() {
-        if (tubeX[scoringTube!!] < (birdX - mTopTube!!.width)) {
-            score += 1
-            scoringTube =
-                if (scoringTube!! < numberOfTubes - 1) scoringTube!! + 1 else 0
+        if (tube!!.tubeX[score!!.scoringTube] < (bird!!.birdX - mTopTube!!.width)) {
+            score!!.score += 1
+            score!!.scoringTube =
+                if (score!!.scoringTube < numberOfTubes - 1) score!!.scoringTube + 1 else 0
 
             startMediaPoint()
 
             withContext(Dispatchers.Main) {
-                binding.score.text = "$score"
+                binding.score.text = "${score!!.score}"
             }
         }
     }
 
     private suspend fun updateScoreCoin() {
-        if (scoringCoin) {
-            score += 5
-            scoringCoin = false
+        if (score!!.scoringCoin) {
+            score!!.score += 5
+            score!!.scoringCoin = false
 
             startMediaPoint()
 
             withContext(Dispatchers.Main) {
-                binding.score.text = "$score"
+                binding.score.text = "${score!!.score}"
             }
         }
     }
 
+    private suspend fun updateCloud(canvas: Canvas) {
+        for (i in 0 until numberOfTubes) {
+            if (cloud!!.cloudX[i] < -mCloud!!.width) {   //Xét tube ra ngoài màn hình
+                cloud!!.cloudX[i] = numberOfTubes * mDisplayWidth + random.nextInt(mDisplayWidth)
+                cloud!!.cloudY[i] = random.nextInt(mDisplayHeight)
+            } else {
+                cloud!!.cloudX[i] -= cloud!!.cloudVelocity
+            }
+        }
+        drawCloud(canvas)
+    }
+
     private suspend fun updateCoin(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
-            if (coinX[i] < -mCoin!!.width) {   //Xét coin ra ngoài màn hình
-                scoringCoin = true
-                coinIndex[i] = true
-                coinX[i] =
-                    tubeX[i] + mTopTube!!.width + random.nextInt(distanceBetweenTubes - mTopTube!!.width - (2 * mCoin!!.width) + 1)
-                coinY[i] =
-                    minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1)
+            if (coin!!.coinX[i] < -mCoin!!.width) {   //Xét coin ra ngoài màn hình
+                score!!.scoringCoin = true
+                coin!!.coinShowing[i] = true
+                coin!!.coinX[i] =
+                    tube!!.tubeX[i] + tube!!.distanceBetweenTubes / 2 + random.nextInt(tube!!.distanceBetweenTubes - tube!!.distanceBetweenTubes / 2 - (2 * mCoin!!.width) + 1)
+                coin!!.coinY[i] =
+                    tube!!.minTubeOffset + random.nextInt(tube!!.maxTubeOffset - tube!!.minTubeOffset + 1)
             } else {
-                coinX[i] -= tubeVelocity
+                coin!!.coinX[i] -= tube!!.tubeVelocity
             }
         }
         drawCoin(canvas)
@@ -321,24 +337,24 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     private suspend fun updateTube(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
-            if (tubeX[i] < -mTopTube!!.width) {   //Xét tube ra ngoài màn hình
-                tubeX[i] += numberOfTubes * distanceBetweenTubes
-                topTubeY[i] =
-                    minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1)
+            if (tube!!.tubeX[i] < -mTopTube!!.width) {   //Xét tube ra ngoài màn hình
+                tube!!.tubeX[i] += numberOfTubes * tube!!.distanceBetweenTubes
+                tube!!.topTubeY[i] =
+                    tube!!.minTubeOffset + random.nextInt(tube!!.maxTubeOffset - tube!!.minTubeOffset + 1)
 
                 if (level == LEVEL_VERY_HARD) {
-                    tubeMove[i] = tubeMoveDefault
+                    tube!!.tubeMove[i] = tube!!.tubeMoveDefault
                 }
             } else {
-                tubeX[i] -= tubeVelocity
+                tube!!.tubeX[i] -= tube!!.tubeVelocity
                 if (level == LEVEL_VERY_HARD) {
-                    tubeMove[i] =
-                        if ((topTubeY[i] + tubeMove[i] <= minTubeOffset)
-                            || (topTubeY[i] + tubeMove[i] >= maxTubeOffset!!)
+                    tube!!.tubeMove[i] =
+                        if ((tube!!.topTubeY[i] + tube!!.tubeMove[i] <= tube!!.minTubeOffset)
+                            || (tube!!.topTubeY[i] + tube!!.tubeMove[i] >= tube!!.maxTubeOffset)
                         )
-                            0 - tubeMove[i]
-                        else tubeMove[i]
-                    topTubeY[i] += tubeMove[i]
+                            0 - tube!!.tubeMove[i]
+                        else tube!!.tubeMove[i]
+                    tube!!.topTubeY[i] += tube!!.tubeMove[i]
                 }
             }
         }
@@ -346,11 +362,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private suspend fun updateBird(canvas: Canvas) {
-        if (birdY < mDisplayHeight - mBirds[0].height || velocity < 0) {     //Xét bird không rơi khỏi màn hình
+        if (bird!!.birdY < mDisplayHeight - mBirds[0].height || bird!!.velocity < 0) {     //Xét bird không rơi khỏi màn hình
             //Xét bird đang rơi, càng rơi càng nhanh
-            velocity += gravity
+            bird!!.velocity += bird!!.gravity
 
-            birdY = if (birdY + velocity < 0) 0f else birdY + velocity
+            bird!!.birdY =
+                if (bird!!.birdY + bird!!.velocity < 0) 0f else bird!!.birdY + bird!!.velocity
         } else {
             startMediaHit()
 
@@ -360,14 +377,27 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         drawBird(canvas)
     }
 
+    private suspend fun drawCloud(canvas: Canvas) {
+        for (i in 0 until numberOfTubes) {
+            withContext(Dispatchers.Main) {
+                canvas.drawBitmap(
+                    mCloud!!,
+                    cloud!!.cloudX[i].toFloat(),
+                    cloud!!.cloudY[i].toFloat(),
+                    null
+                )
+            }
+        }
+    }
+
     private suspend fun drawCoin(canvas: Canvas) {
         for (i in 0 until numberOfTubes) {
-            if (coinIndex[i]) {
+            if (coin!!.coinShowing[i]) {
                 withContext(Dispatchers.Main) {
                     canvas.drawBitmap(
                         mCoin!!,
-                        coinX[i].toFloat(),
-                        coinY[i].toFloat(),
+                        coin!!.coinX[i].toFloat(),
+                        coin!!.coinY[i].toFloat(),
                         null
                     )
                 }
@@ -380,14 +410,14 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             withContext(Dispatchers.Main) {
                 canvas.drawBitmap(
                     mTopTube!!,
-                    tubeX[i].toFloat(),
-                    (topTubeY[i] - mTopTube!!.height).toFloat(),
+                    tube!!.tubeX[i].toFloat(),
+                    (tube!!.topTubeY[i] - mTopTube!!.height).toFloat(),
                     null
                 )
                 canvas.drawBitmap(
                     mBottomTube!!,
-                    tubeX[i].toFloat(),
-                    (topTubeY[i] + gap).toFloat(),
+                    tube!!.tubeX[i].toFloat(),
+                    (tube!!.topTubeY[i] + tube!!.gap).toFloat(),
                     null
                 )
             }
@@ -402,13 +432,21 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
             birdFrame = if (birdFrame == 0) 1 else 0
         }
         withContext(Dispatchers.Main) {
-            canvas.drawBitmap(mBirds[birdFrame], birdX, birdY, null)
+            canvas.drawBitmap(mBirds[birdFrame], bird!!.birdX, bird!!.birdY, null)
         }
     }
 
-    private suspend fun drawBackGroundGame(canvas: Canvas) {
+    private suspend fun clearBackGroundGame(canvas: Canvas) {
+        val clearPaint = Paint()
+        clearPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         withContext(Dispatchers.Main) {
-            canvas.drawBitmap(mBackground!!, null, mRect!!, null)
+            canvas.drawRect(
+                0f,
+                0f,
+                mDisplayWidth.toFloat(),
+                mDisplayHeight.toFloat(),
+                clearPaint
+            )
         }
     }
 
@@ -470,6 +508,10 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private fun initData() {
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
         bird = intent.getParcelableExtra(TYPE_BIRD)
+        tube = Tube(1, R.drawable.toptube, R.drawable.bottomtube)
+        cloud = Cloud(1, R.drawable.cloud)
+        coin = Coin(1, R.drawable.coin)
+        score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
         createDataGame()
@@ -482,69 +524,79 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun setupSurfaceHolder() {
+        binding.surfaceView.setZOrderOnTop(true)
+
         surfaceHolder = binding.surfaceView.holder
+        surfaceHolder.setFormat(PixelFormat.TRANSLUCENT)
         surfaceHolder.addCallback(this)
     }
 
     private fun resetData() {
         gameState = STATE_GAME_NOT_STARTED
 
-        score = 0
-        binding.score.text = "$score"
-        scoringTube = 0
-        scoringCoin = true
+        score!!.score = 0
+        binding.score.text = "${score!!.score}"
+        score!!.scoringTube = 0
+        score!!.scoringCoin = true
 
-        birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
-        birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
+        bird!!.birdX = (mDisplayWidth - mBirds[0].width).toFloat() / 2
+        bird!!.birdY = (mDisplayHeight - mBirds[0].height).toFloat() / 2
 
         updateDatabaseBird()
         updateDataLevel(level)
 
-        tubeX.clear()
-        topTubeY.clear()
+        tube!!.tubeX.clear()
+        tube!!.topTubeY.clear()
         for (i in 0 until numberOfTubes) {
-            tubeX.add(mDisplayWidth + distanceBetweenTubes * i)
-            topTubeY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
+            tube!!.tubeX.add(mDisplayWidth + tube!!.distanceBetweenTubes * i)
+            tube!!.topTubeY.add(tube!!.minTubeOffset + random.nextInt(tube!!.maxTubeOffset - tube!!.minTubeOffset + 1))
 
             if (level == LEVEL_VERY_HARD) {
-                tubeMove.add(tubeMoveDefault)
+                tube!!.tubeMove.add(tube!!.tubeMoveDefault)
             }
         }
 
-        coinX.clear()
-        coinY.clear()
-        coinIndex.clear()
+        coin!!.coinX.clear()
+        coin!!.coinY.clear()
+        coin!!.coinShowing.clear()
         for (i in 0 until numberOfTubes) {
-            coinX.add(tubeX[i] + mTopTube!!.width + random.nextInt(distanceBetweenTubes - mTopTube!!.width - (2 * mCoin!!.width) + 1))
-            coinY.add(minTubeOffset + random.nextInt(maxTubeOffset!! - minTubeOffset + 1))
-            coinIndex.add(true)
+            coin!!.coinX.add(tube!!.tubeX[i] + tube!!.distanceBetweenTubes / 2 + random.nextInt(tube!!.distanceBetweenTubes - tube!!.distanceBetweenTubes / 2 - (2 * mCoin!!.width) + 1))
+            coin!!.coinY.add(tube!!.minTubeOffset + random.nextInt(tube!!.maxTubeOffset - tube!!.minTubeOffset + 1))
+            coin!!.coinShowing.add(true)
+        }
+
+        cloud!!.cloudX.clear()
+        cloud!!.cloudY.clear()
+        for (i in 0 until numberOfTubes) {
+            cloud!!.cloudX.add(mDisplayWidth * (i + 1) + random.nextInt(mDisplayWidth))
+            cloud!!.cloudY.add(random.nextInt(mDisplayHeight))
         }
     }
 
     private fun updateDataLevel(level: Int) {
         when (level) {
             LEVEL_EASY -> {
-                gap = GAP_EASY
-                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_EASY
+                tube!!.gap = GAP_EASY
+                tube!!.distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_EASY
             }
             LEVEL_MEDIUM -> {
-                gap = GAP_MEDIUM
-                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_MEDIUM
+                tube!!.gap = GAP_MEDIUM
+                tube!!.distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_MEDIUM
             }
             LEVEL_HARD, LEVEL_VERY_HARD -> {
-                gap = GAP_HARD
-                distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_HARD
+                tube!!.gap = GAP_HARD
+                tube!!.distanceBetweenTubes = mDisplayWidth * 3 / 4 + DISTANCE_HARD
             }
         }
-        minTubeOffset = gap / 2
-        maxTubeOffset = mDisplayHeight - minTubeOffset - gap
+        tube!!.minTubeOffset = tube!!.gap / 2
+        tube!!.maxTubeOffset = mDisplayHeight - tube!!.minTubeOffset - tube!!.gap
     }
 
     private fun createDataGame() {
-        mBackground = BitmapFactory.decodeResource(resources, R.drawable.bg)
-        mTopTube = BitmapFactory.decodeResource(resources, R.drawable.toptube)
-        mBottomTube = BitmapFactory.decodeResource(resources, R.drawable.bottomtube)
-        mCoin = BitmapFactory.decodeResource(resources, R.drawable.coin)
+        mCloud = BitmapFactory.decodeResource(resources, cloud!!.cloudRes)
+        mTopTube = BitmapFactory.decodeResource(resources, tube!!.tubeTopRes)
+        mBottomTube = BitmapFactory.decodeResource(resources, tube!!.tubeBottomRes)
+        mCoin = BitmapFactory.decodeResource(resources, coin!!.coinRes)
         val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
         val heightNavigationBar = if (resourceId > 0) {
             resources.getDimensionPixelSize(resourceId)
@@ -555,12 +607,12 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         mRect = Rect(0, 0, mDisplayWidth, mDisplayHeight)
 
         mBirds = listOf(
-            BitmapFactory.decodeResource(resources, bird!!.bird1),
-            BitmapFactory.decodeResource(resources, bird!!.bird2)
+            BitmapFactory.decodeResource(resources, bird!!.bird1Res),
+            BitmapFactory.decodeResource(resources, bird!!.bird2Res)
         )
 
-        distanceBetweenTubes = mDisplayWidth * 3 / 4
-        maxTubeOffset = mDisplayHeight - minTubeOffset - gap
+        tube!!.distanceBetweenTubes = mDisplayWidth * 3 / 4
+        tube!!.maxTubeOffset = mDisplayHeight - tube!!.minTubeOffset - tube!!.gap
 
         resetData()
     }
@@ -579,8 +631,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun updateDatabaseBird() {
-        bird!!.birdX = birdX
-        bird!!.birdY = birdY
         App.getDatabase().getReference("bird").setValue(bird)
     }
 
@@ -616,7 +666,11 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var sharedPreferences: SharedPreferences
     private var level: Int = LEVEL_EASY
-    private var bird: Bird? = null
+    private var gameState: Int = STATE_GAME_NOT_STARTED
+
+    private var mRect: Rect? = null
+    private var mDisplayWidth: Int = 0              //Width screen
+    private var mDisplayHeight: Int = 0             //Height screen
 
     private var mediaHit: MediaPlayer? = null
     private var mediaPoint: MediaPlayer? = null
@@ -624,40 +678,22 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private val volume =
         (App.getInstance().getVolumeEffect() * App.getInstance().getVolumeMaster()).toFloat() / 100
 
-    private var mBackground: Bitmap? = null
-    private var mTopTube: Bitmap? = null
-    private var mBottomTube: Bitmap? = null
-    private var mCoin: Bitmap? = null
-    private var mDisplayWidth: Int = 0              //Width screen
-    private var mDisplayHeight: Int = 0             //Height screen
-    private var mRect: Rect? = null
+    private var random: Random = Random()
 
+    private var bird: Bird? = null
     private var mBirds: List<Bitmap> = listOf()     //List bitmap for bird
     private var birdFrame: Int = 0                  //Theo dõi trạng thái của bird
-    private var velocity: Int = 0                   //Vận tốc rơi
-    private var gravity: Int = 2
 
-    private var birdX: Float = 0f
-    private var birdY: Float = 0f
+    private var tube: Tube? = null
+    private var mTopTube: Bitmap? = null
+    private var mBottomTube: Bitmap? = null
+    private var numberOfTubes: Int = 2
 
-    private var gameState: Int = STATE_GAME_NOT_STARTED
+    private var cloud: Cloud? = null
+    private var mCloud: Bitmap? = null
 
-    private var gap: Int = 400                      //Khoảng cách giữa tube trên và dưới
-    private var distanceBetweenTubes: Int = 0       //Khoảng cách giữa các tube
-    private var numberOfTubes: Int = 4
-    private var minTubeOffset: Int = gap / 2
-    private var maxTubeOffset: Int? = null
-    private var tubeX: ArrayList<Int> = arrayListOf()
-    private var topTubeY: ArrayList<Int> = arrayListOf()
-    private var coinX: ArrayList<Int> = arrayListOf()
-    private var coinY: ArrayList<Int> = arrayListOf()
-    private var coinIndex: ArrayList<Boolean> = arrayListOf()
-    private var random: Random = Random()
-    private var tubeVelocity: Int = 8               //Vận tốc tube
-    private var tubeMove: ArrayList<Int> = arrayListOf()
-    private var tubeMoveDefault = 2
+    private var coin: Coin? = null
+    private var mCoin: Bitmap? = null
 
-    private var score: Int = 0
-    private var scoringTube: Int? = 0
-    private var scoringCoin: Boolean = true
+    private var score: Score? = null
 }

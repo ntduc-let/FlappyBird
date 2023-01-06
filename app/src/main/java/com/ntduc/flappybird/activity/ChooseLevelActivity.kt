@@ -2,8 +2,6 @@ package com.ntduc.flappybird.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,18 +56,18 @@ class ChooseLevelActivity : AppCompatActivity() {
     }
 
     private fun initListBird() {
-        listBird.add(Bird(style = 1, bird1 = R.drawable.bird_1a, bird2 = R.drawable.bird_1b))
-        listBird.add(Bird(style = 2, bird1 = R.drawable.bird_2a, bird2 = R.drawable.bird_2b))
-        listBird.add(Bird(style = 3, bird1 = R.drawable.bird_3a, bird2 = R.drawable.bird_3b))
-        listBird.add(Bird(style = 4, bird1 = R.drawable.bird_4a, bird2 = R.drawable.bird_4b))
-        listBird.add(Bird(style = 5, bird1 = R.drawable.bird_5a, bird2 = R.drawable.bird_5b))
-        listBird.add(Bird(style = 6, bird1 = R.drawable.bird_6a, bird2 = R.drawable.bird_6b))
-        listBird.add(Bird(style = 7, bird1 = R.drawable.bird_7a, bird2 = R.drawable.bird_7b))
-        listBird.add(Bird(style = 8, bird1 = R.drawable.bird_8a, bird2 = R.drawable.bird_8b))
-        listBird.add(Bird(style = 9, bird1 = R.drawable.bird_9a, bird2 = R.drawable.bird_9b))
-        listBird.add(Bird(style = 10, bird1 = R.drawable.bird_10a, bird2 = R.drawable.bird_10b))
-        listBird.add(Bird(style = 11, bird1 = R.drawable.bird_11a, bird2 = R.drawable.bird_11b))
-        listBird.add(Bird(style = 12, bird1 = R.drawable.bird_12a, bird2 = R.drawable.bird_12b))
+        listBird.add(Bird(id = 1, bird1Res = R.drawable.bird_1a, bird2Res = R.drawable.bird_1b))
+        listBird.add(Bird(id = 2, bird1Res = R.drawable.bird_2a, bird2Res = R.drawable.bird_2b))
+        listBird.add(Bird(id = 3, bird1Res = R.drawable.bird_3a, bird2Res = R.drawable.bird_3b))
+        listBird.add(Bird(id = 4, bird1Res = R.drawable.bird_4a, bird2Res = R.drawable.bird_4b))
+        listBird.add(Bird(id = 5, bird1Res = R.drawable.bird_5a, bird2Res = R.drawable.bird_5b))
+        listBird.add(Bird(id = 6, bird1Res = R.drawable.bird_6a, bird2Res = R.drawable.bird_6b))
+        listBird.add(Bird(id = 7, bird1Res = R.drawable.bird_7a, bird2Res = R.drawable.bird_7b))
+        listBird.add(Bird(id = 8, bird1Res = R.drawable.bird_8a, bird2Res = R.drawable.bird_8b))
+        listBird.add(Bird(id = 9, bird1Res = R.drawable.bird_9a, bird2Res = R.drawable.bird_9b))
+        listBird.add(Bird(id = 10, bird1Res = R.drawable.bird_10a, bird2Res = R.drawable.bird_10b))
+        listBird.add(Bird(id = 11, bird1Res = R.drawable.bird_11a, bird2Res = R.drawable.bird_11b))
+        listBird.add(Bird(id = 12, bird1Res = R.drawable.bird_12a, bird2Res = R.drawable.bird_12b))
     }
 
     private fun initEvent() {
