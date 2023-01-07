@@ -5,18 +5,26 @@ import android.graphics.*
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 import com.ntduc.activityutils.enterFullScreenMode
 import com.ntduc.contextutils.displayHeight
 import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
 import com.ntduc.flappybird.App
 import com.ntduc.flappybird.R
+import com.ntduc.flappybird.databinding.ActivityMultiPlayerBinding
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
 import com.ntduc.flappybird.model.*
 import com.ntduc.sharedpreferenceutils.get
@@ -27,11 +35,11 @@ import kotlinx.coroutines.withContext
 import java.util.*
 
 
-class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTouchListener {
+class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTouchListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityPlayGameBinding.inflate(inflater)
+        binding = ActivityMultiPlayerBinding.inflate(inflater)
         setContentView(binding.root)
 
         init()
@@ -477,9 +485,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun initData() {
-        // Initialize Firebase Auth
-        auth = FirebaseAuth.getInstance()
-
         level = intent.getIntExtra(LEVEL_GAME, LEVEL_EASY)
         bird = intent.getParcelableExtra(TYPE_BIRD)
         tube = Tube(1, R.drawable.toptube, R.drawable.bottomtube)
@@ -487,11 +492,20 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
-        if (auth.currentUser != null){
-            user = User(uid = auth.currentUser!!.uid, bird = bird, coin = coin, score = score, tube = tube)
-        }
+        Firebase.database.getReference("r4Hs45atHfVm7rhkicXnZ1ODEaw1").addValueEventListener(object :
+            ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                val value = dataSnapshot.getValue<User>()
+                Log.d("ntduc_debug", "onDataChange: $value")
+            }
 
-        createDataGame()
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ntduc_debug", "onCancelled: ")
+            }
+        })
+//        createDataGame()
     }
 
     private fun init() {
@@ -605,7 +619,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
-        runGame()
+//        runGame()
 
     }
 
@@ -651,7 +665,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         private const val BEST_SCORE_VERY_HARD = "BEST_SCORE_VERY_HARD"
     }
 
-    private lateinit var binding: ActivityPlayGameBinding
+    private lateinit var binding: ActivityMultiPlayerBinding
     private lateinit var surfaceHolder: SurfaceHolder
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var auth: FirebaseAuth

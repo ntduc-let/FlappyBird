@@ -6,9 +6,9 @@ import java.util.ArrayList
 
 @Parcelize
 data class Tube(
-    var id: Int,
-    var tubeTopRes: Int,
-    var tubeBottomRes: Int,
+    var id: Int = 0,
+    var tubeTopRes: Int = 0,
+    var tubeBottomRes: Int = 0,
     var gap: Int = 400,                         //Khoảng cách giữa tube trên và dưới
     var distanceBetweenTubes: Int = 0,          //Khoảng cách giữa các tube
     var minTubeOffset: Int = 200,               // = gap/2

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "441229843128",
+    "firebase_url": "https://flappybird-mutiplayer-default-rtdb.firebaseio.com",
     "project_id": "flappybird-mutiplayer",
     "storage_bucket": "flappybird-mutiplayer.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "441229843128-qp4hnkqma37tlk757p23ohd3uhau1gl1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ntduc.flappybird",
+            "certificate_hash": "336ea3996ad17328d7e90d1472295fbdd46bc311"
+          }
+        },
         {
           "client_id": "441229843128-01vebbcgdkrpuu69cjt6ml8nnaprbs8p.apps.googleusercontent.com",
           "client_type": 3

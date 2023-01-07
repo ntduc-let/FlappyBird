@@ -6,8 +6,8 @@ import java.util.ArrayList
 
 @Parcelize
 data class Coin(
-    var id: Int,
-    var coinRes: Int,
+    var id: Int = 0,
+    var coinRes: Int = 0,
     var coinX: ArrayList<Int> = arrayListOf(),
     var coinY: ArrayList<Int> = arrayListOf(),
     var coinVelocity: Int = 8,                  //Vận tốc coin
