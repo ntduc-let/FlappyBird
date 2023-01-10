@@ -1,4 +1,4 @@
-package com.ntduc.flappybird.activity
+package com.ntduc.flappybird.demo.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.ntduc.contextutils.inflater
-import com.ntduc.flappybird.App
+import com.ntduc.flappybird.demo.App
 import com.ntduc.flappybird.R
-import com.ntduc.flappybird.adapter.SliderBirdsAdapter
+import com.ntduc.flappybird.demo.adapter.SliderBirdsAdapter
 import com.ntduc.flappybird.databinding.ActivityChooseLevelBinding
-import com.ntduc.flappybird.model.Bird
+import com.ntduc.flappybird.demo.model.Bird
 import kotlin.math.abs
 
 class ChooseLevelActivity : AppCompatActivity() {

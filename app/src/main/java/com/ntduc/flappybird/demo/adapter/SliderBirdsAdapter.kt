@@ -1,11 +1,11 @@
-package com.ntduc.flappybird.adapter
+package com.ntduc.flappybird.demo.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ntduc.flappybird.databinding.SliderItemBirdBinding
-import com.ntduc.flappybird.model.Bird
+import com.ntduc.flappybird.demo.model.Bird
 
 class SliderBirdsAdapter(
     private var context: Context,

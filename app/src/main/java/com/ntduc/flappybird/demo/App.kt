@@ -1,4 +1,4 @@
-package com.ntduc.flappybird
+package com.ntduc.flappybird.demo
 
 import android.app.Activity
 import android.app.Application
@@ -8,6 +8,7 @@ import android.os.Bundle
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.ntduc.flappybird.R
 import com.ntduc.sharedpreferenceutils.get
 import com.ntduc.sharedpreferenceutils.put
 

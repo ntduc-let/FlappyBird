@@ -1,4 +1,4 @@
-package com.ntduc.flappybird.model
+package com.ntduc.flappybird.demo.model
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

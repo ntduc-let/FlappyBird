@@ -1,4 +1,4 @@
-package com.ntduc.flappybird.activity
+package com.ntduc.flappybird.demo.activity
 
 import android.content.SharedPreferences
 import android.graphics.*
@@ -22,11 +22,10 @@ import com.ntduc.activityutils.enterFullScreenMode
 import com.ntduc.contextutils.displayHeight
 import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
-import com.ntduc.flappybird.App
+import com.ntduc.flappybird.demo.App
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityMultiPlayerBinding
-import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
-import com.ntduc.flappybird.model.*
+import com.ntduc.flappybird.demo.model.*
 import com.ntduc.sharedpreferenceutils.get
 import com.ntduc.sharedpreferenceutils.put
 import kotlinx.coroutines.Dispatchers
@@ -92,59 +91,61 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
 
                 clearBackGroundGame(canvas)
 
-                when (gameState) {
-                    STATE_GAME_NOT_STARTED -> {
-                        drawBird(canvas)
-
-                        showLevel()
+                drawBirdOther(canvas)
+                drawTube(canvas)
+//                when (gameState) {
+//                    STATE_GAME_NOT_STARTED -> {
+//                        drawBird(canvas)
+//
+//                        showLevel()
                         hideScoreBoard()
                         hideScore()
                         hidePaused()
-                    }
-                    STATE_GAME_PLAYING -> {
-                        updateTube(canvas)
-                        updateCoin(canvas)
-
-                        updateBird(canvas)
-
-                        showLevel()
-                        showScore()
-                        hidePaused()
-
-                        if (isBirdHitCoin()) {
-                            updateScoreCoin()
-                        }
-
-                        if (isBirdHitTube()) {
-                            startMediaHit()
-
-                            gameState = STATE_GAME_OVER
-                        } else {
-                            updateScoreTube()
-                        }
-                    }
-                    STATE_GAME_PAUSED -> {
-                        drawTube(canvas)
-                        drawCoin(canvas)
-
-                        drawBird(canvas)
-
-                        showPaused()
-                    }
-                    STATE_GAME_OVER -> {
-                        drawTube(canvas)
-                        drawCoin(canvas)
-
-                        drawBird(canvas)
-
-                        hideLevel()
-                        hideScore()
-                        showScoreBoard()
-                        hidePaused()
-                    }
-                }
-
-                updateRealtimeDatabase()
+//                    }
+//                    STATE_GAME_PLAYING -> {
+//                        updateTube(canvas)
+//                        updateCoin(canvas)
+//
+//                        updateBird(canvas)
+//
+//                        showLevel()
+//                        showScore()
+//                        hidePaused()
+//
+//                        if (isBirdHitCoin()) {
+//                            updateScoreCoin()
+//                        }
+//
+//                        if (isBirdHitTube()) {
+//                            startMediaHit()
+//
+//                            gameState = STATE_GAME_OVER
+//                        } else {
+//                            updateScoreTube()
+//                        }
+//                    }
+//                    STATE_GAME_PAUSED -> {
+//                        drawTube(canvas)
+//                        drawCoin(canvas)
+//
+//                        drawBird(canvas)
+//
+//                        showPaused()
+//                    }
+//                    STATE_GAME_OVER -> {
+//                        drawTube(canvas)
+//                        drawCoin(canvas)
+//
+//                        drawBird(canvas)
+//
+//                        hideLevel()
+//                        hideScore()
+//                        showScoreBoard()
+//                        hidePaused()
+//                    }
+//                }
+//
+//                updateRealtimeDatabase()
                 withContext(Dispatchers.Main) {
                     if (surfaceHolder.surface.isValid) surfaceHolder.unlockCanvasAndPost(canvas)
                 }
@@ -384,21 +385,41 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
     }
 
     private suspend fun drawTube(canvas: Canvas) {
+        if (userOther == null) return
+
         for (i in 0 until numberOfTubes) {
             withContext(Dispatchers.Main) {
                 canvas.drawBitmap(
                     mTopTube!!,
-                    tube!!.tubeX[i].toFloat(),
-                    (tube!!.topTubeY[i] - mTopTube!!.height).toFloat(),
+                    userOther!!.tube!!.tubeX[i].toFloat() * displayWidth / userOther!!.device!!.width,
+                    (userOther!!.tube!!.topTubeY[i] - mTopTube!!.height).toFloat() * displayHeight / userOther!!.device!!.height,
                     null
                 )
                 canvas.drawBitmap(
                     mBottomTube!!,
-                    tube!!.tubeX[i].toFloat(),
-                    (tube!!.topTubeY[i] + tube!!.gap).toFloat(),
+                    userOther!!.tube!!.tubeX[i].toFloat() * displayWidth / userOther!!.device!!.width,
+                    (userOther!!.tube!!.topTubeY[i] + userOther!!.tube!!.gap).toFloat() * displayHeight / userOther!!.device!!.height,
                     null
                 )
             }
+        }
+    }
+
+    private var currentOther = System.currentTimeMillis()
+    private suspend fun drawBirdOther(canvas: Canvas) {
+        if (userOther == null) return
+
+        if (System.currentTimeMillis() - currentOther >= delay) {
+            currentOther = System.currentTimeMillis()
+            birdFrameOther = if (birdFrameOther == 0) 1 else 0
+        }
+        withContext(Dispatchers.Main) {
+            canvas.drawBitmap(
+                mBirdsOther[birdFrameOther],
+                userOther!!.bird!!.birdX * displayWidth / userOther!!.device!!.width,
+                userOther!!.bird!!.birdY * displayHeight / userOther!!.device!!.height,
+                null
+            )
         }
     }
 
@@ -421,8 +442,8 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
             canvas.drawRect(
                 0f,
                 0f,
-                mDisplayWidth.toFloat(),
-                mDisplayHeight.toFloat(),
+                displayWidth.toFloat(),
+                displayHeight.toFloat(),
                 clearPaint
             )
         }
@@ -492,19 +513,33 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
         score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
-        Firebase.database.getReference("r4Hs45atHfVm7rhkicXnZ1ODEaw1").addValueEventListener(object :
-            ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = dataSnapshot.getValue<User>()
-                Log.d("ntduc_debug", "onDataChange: $value")
-            }
+        Firebase.database.getReference("r4Hs45atHfVm7rhkicXnZ1ODEaw1")
+            .addValueEventListener(object :
+                ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    if (dataSnapshot.getValue<User>() == null) return
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("ntduc_debug", "onCancelled: ")
-            }
-        })
+                    if (userOther == null) {
+                        userOther = dataSnapshot.getValue<User>()
+
+                        mBirdsOther = listOf(
+                            BitmapFactory.decodeResource(resources, userOther!!.bird!!.bird1Res),
+                            BitmapFactory.decodeResource(resources, userOther!!.bird!!.bird2Res)
+                        )
+                    } else {
+                        userOther = dataSnapshot.getValue<User>()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
+
+        mTopTube = BitmapFactory.decodeResource(resources, tube!!.tubeTopRes)
+        mBottomTube = BitmapFactory.decodeResource(resources, tube!!.tubeBottomRes)
 //        createDataGame()
     }
 
@@ -517,7 +552,8 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
     private fun setupVideoBackground() {
         binding.videoBackground.setOnPreparedListener {
             val videoRatio = it.videoWidth / it.videoHeight.toFloat()
-            val screenRatio = binding.videoBackground.width / binding.videoBackground.height.toFloat()
+            val screenRatio =
+                binding.videoBackground.width / binding.videoBackground.height.toFloat()
             val scaleX = videoRatio / screenRatio
             if (scaleX >= 1f) {
                 binding.videoBackground.scaleX = scaleX
@@ -619,8 +655,7 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
-//        runGame()
-
+        runGame()
     }
 
     override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
@@ -632,7 +667,7 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
     }
 
     private fun updateRealtimeDatabase() {
-        if (user != null && user!!.uid != null){
+        if (user != null && user!!.uid != null) {
             App.getDatabase().getReference(user!!.uid!!).setValue(user)
         }
     }
@@ -686,10 +721,15 @@ class MultiPlayerActivity : AppCompatActivity(), SurfaceHolder.Callback, View.On
     private var random: Random = Random()
 
     private var user: User? = null
+    private var userOther: User? = null
 
     private var bird: Bird? = null
     private var mBirds: List<Bitmap> = listOf()     //List bitmap for bird
     private var birdFrame: Int = 0                  //Theo dõi trạng thái của bird
+
+    private var birdOther: Bird? = null
+    private var mBirdsOther: List<Bitmap> = listOf()     //List bitmap for bird
+    private var birdFrameOther: Int = 0                  //Theo dõi trạng thái của bird
 
     private var tube: Tube? = null
     private var mTopTube: Bitmap? = null

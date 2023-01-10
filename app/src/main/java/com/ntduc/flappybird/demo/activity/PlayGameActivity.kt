@@ -1,4 +1,4 @@
-package com.ntduc.flappybird.activity
+package com.ntduc.flappybird.demo.activity
 
 import android.content.SharedPreferences
 import android.graphics.*
@@ -11,14 +11,20 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 import com.ntduc.activityutils.enterFullScreenMode
 import com.ntduc.contextutils.displayHeight
 import com.ntduc.contextutils.displayWidth
 import com.ntduc.contextutils.inflater
-import com.ntduc.flappybird.App
+import com.ntduc.flappybird.demo.App
 import com.ntduc.flappybird.R
 import com.ntduc.flappybird.databinding.ActivityPlayGameBinding
-import com.ntduc.flappybird.model.*
+import com.ntduc.flappybird.demo.model.*
 import com.ntduc.sharedpreferenceutils.get
 import com.ntduc.sharedpreferenceutils.put
 import kotlinx.coroutines.Dispatchers
@@ -83,6 +89,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
                 } ?: continue
 
                 clearBackGroundGame(canvas)
+
+                drawBirdOther(canvas)
 
                 when (gameState) {
                     STATE_GAME_NOT_STARTED -> {
@@ -487,9 +495,42 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
         score = Score()
         sharedPreferences = getSharedPreferences("SCORE_GAME", MODE_PRIVATE)
 
-        if (auth.currentUser != null){
-            user = User(uid = auth.currentUser!!.uid, bird = bird, coin = coin, score = score, tube = tube)
+        if (auth.currentUser != null) {
+            user = User(
+                uid = auth.currentUser!!.uid,
+                device = Device(width = displayWidth, height = displayHeight),
+                bird = bird,
+                coin = coin,
+                score = score,
+                tube = tube
+            )
         }
+
+        Firebase.database.getReference("47PjKsPwKmO8ylslqnZ3TgnSgo92")
+            .addValueEventListener(object :
+                ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    if (dataSnapshot.getValue<User>() == null) return
+
+                    if (userOther == null) {
+                        val user: User
+                        userOther = dataSnapshot.getValue<User>()
+
+                        mBirdsOther = listOf(
+                            BitmapFactory.decodeResource(resources, userOther!!.bird!!.bird1Res),
+                            BitmapFactory.decodeResource(resources, userOther!!.bird!!.bird2Res)
+                        )
+                    } else {
+                        userOther = dataSnapshot.getValue<User>()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+            })
 
         createDataGame()
     }
@@ -503,7 +544,8 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private fun setupVideoBackground() {
         binding.videoBackground.setOnPreparedListener {
             val videoRatio = it.videoWidth / it.videoHeight.toFloat()
-            val screenRatio = binding.videoBackground.width / binding.videoBackground.height.toFloat()
+            val screenRatio =
+                binding.videoBackground.width / binding.videoBackground.height.toFloat()
             val scaleX = videoRatio / screenRatio
             if (scaleX >= 1f) {
                 binding.videoBackground.scaleX = scaleX
@@ -606,7 +648,6 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         runGame()
-
     }
 
     override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
@@ -618,7 +659,7 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     }
 
     private fun updateRealtimeDatabase() {
-        if (user != null && user!!.uid != null){
+        if (user != null && user!!.uid != null) {
             App.getDatabase().getReference(user!!.uid!!).setValue(user)
         }
     }
@@ -672,10 +713,15 @@ class PlayGameActivity : AppCompatActivity(), SurfaceHolder.Callback, View.OnTou
     private var random: Random = Random()
 
     private var user: User? = null
+    private var userOther: User? = null
 
     private var bird: Bird? = null
     private var mBirds: List<Bitmap> = listOf()     //List bitmap for bird
     private var birdFrame: Int = 0                  //Theo dõi trạng thái của bird
+
+    private var birdOther: Bird? = null
+    private var mBirdsOther: List<Bitmap> = listOf()     //List bitmap for bird
+    private var birdFrameOther: Int = 0                  //Theo dõi trạng thái của bird
 
     private var tube: Tube? = null
     private var mTopTube: Bitmap? = null

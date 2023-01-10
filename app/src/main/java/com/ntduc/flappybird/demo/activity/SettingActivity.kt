@@ -1,9 +1,9 @@
-package com.ntduc.flappybird.activity
+package com.ntduc.flappybird.demo.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.ntduc.contextutils.inflater
-import com.ntduc.flappybird.App
+import com.ntduc.flappybird.demo.App
 import com.ntduc.flappybird.databinding.ActivitySettingBinding
 
 class SettingActivity : AppCompatActivity() {
